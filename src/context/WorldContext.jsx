@@ -38,32 +38,38 @@ export const WorldProvider = ({ children }) => {
     // Procesar countries listos para UI
     const countries = useMemo(() => {
         return (worldDataCache || [])
-        .filter(country =>
-            Array.isArray(country.continents) &&
-            !(country.continents.length === 1 && country.continents[0] === 'Antartica' ))
+            .filter(country =>
+                Array.isArray(country.continents) &&
+                !(country.continents.length === 1 && country.continents[0] === 'Antartica'))
             //Elimina países cuyo único continente sea la Antártida
-            
-        .map((country) => ({
-            id: country.cca2,
-            name: country.name.nativeName || country.name.common,
-            area: country.area,
-            population: country.population,
-            continents: country.continents.filter(c => c !== "Antarctica"),
-            //Elimina Antartida de los países que tienen bases científicas allí
-            flag: country.flags.svg,
-            languages: Object.values(country.languages || []),
-            capitals: country.capital || ["N/A"],
-            timezones: country.timezones,
-            latlng: country.latlng,
-        }));
+
+            .map((country) => ({
+                id: country.cca2,
+                name: country.name.nativeName || country.name.common,
+                area: country.area,
+                population: country.population,
+                continents: country.continents.filter(c => c !== "Antarctica"),
+                //Elimina Antartida de los países que tienen bases científicas allí
+                flag: country.flags.svg,
+                languages: Object.values(country.languages || []),
+                capitals: country.capital || ["N/A"],
+                timezones: country.timezones,
+                latlng: country.latlng,
+            }));
     }, [dataLoaded]); // recalcula cuando cargan datos
 
-    // Listar continentes totales
+
+    // Listar continentes y darles un ID
     const continents = useMemo(() => {
         const normalized = countries
-            .flatMap(c => (c.continents))
-            .filter(Boolean); // quita strings vacíos
-        return [...new Set(normalized)].sort();
+            .flatMap(c => c.continents)
+            .filter(Boolean) // quita falsy (null, undefined y string vacío)
+
+        return [...new Set(normalized)]
+            .sort()
+            .map((name, i) => (
+                { id: i + 1, name }
+            ));
     }, [countries]);
 
 
@@ -72,7 +78,12 @@ export const WorldProvider = ({ children }) => {
         const allLanguages = countries.flatMap(c =>
             Object.values(c.languages || {}).map(lang => lang.trim())
         );
-        return [...new Set(allLanguages)].sort();
+
+        return [...new Set(allLanguages)]
+            .sort()
+            .map((name, i) => (
+                { id: i + 1, name }
+            ))
     }, [countries]);
 
     return (

@@ -1,26 +1,19 @@
-import { useWorld } from '../hook/UseWorld'
-import { useEffect } from 'react'
-
-const Menu = () => {
-
-    const { continents, languages, selectedContinents, setSelectedContinents } = useWorld()
-
+import Screen from "./particle/Screen"
+const Menu = ({ category }) => {
+    
+const selection = ( category ) => {
+    console.log(category)
+}
 
     return (
         <main>
-            <div className='
-            flex flex-wrap justify-center text-white gap-1 px-4'>
-                {continents.map((continent, i) => (
-                    <button
-                        key={i}
-                        onClick={() => setSelectedContinents(continent)}
-                        className='px-1 text-center cursor-pointer border'
-                    >
-                        {continent}
-                    </button>
+            <div
+                className="grid sm:flex justify-center h-full translate-x-0 text-slate-700 font-black ">
+                    
+                {category.map((item) => (
+                    <Screen key={item.id} item={item} action={() => selection(item.name)} />
                 ))}
             </div>
-
         </main>
     )
 }
