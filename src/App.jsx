@@ -1,45 +1,50 @@
-import PlanetEarth from "./component/PlanetEarth";
-import { useWorld } from './hook/UseWorld'
-import Screen from "./component/particle/Screen";
+import { useState, useEffect, useContext } from "react";
+import { UseWorld } from "./hook/UseWorld";
+import CountryFinder from "./component/CountryFinder";
+import CountryHub from './component/CountryHub'
+import Menu from './component/particle/Menu'
+import Button from "./component/particle/molecule/Button";
+import NotificationTag from "./component/NotificationTag";
 
 const App = () => {
 
-  const {
-    continents,
-    languages,
-    countries,
-    setSelectedCountry,
-    selectedContinents,
-    setSelectedLanguages,
-    setSelectedContinents } = useWorld()
+  const [currentCountry, setCurrentCountry] = useState(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const { isFinderOpen, setIsFinderOpen } = UseWorld()
 
   return (
+    <main className={`${isFinderOpen ? '' : ''}
+      bg-slate-900 bg-radial from-slate-800 to-slate-950
+      w-screen h-screen min-h-[600px] items-center justify-center md:justify-evenly pt-10
+      overflow-hidden px-5 pb-10 flex flex-col md:flex-row md:pt-5 md:pb-5`}>
 
-      <main className="bg-slate-900 w-screen h-screen min-h-90
-      bg-radial from-slate-600 to-black sm:flex items-center grid grid-cols-[40px_1fr]">
-          <header className="sm:absolute sm:w-full top-1/2 -translate-y-0 sm:-translate-y-1/2 sm:top-1/6 z-100">
+      <div className="absolute top-4 left-4">
+        <Button
+          buttonText={<i className="z-1000 bi-three-dots-vertical text-slate-100" />}
+          title={'Toggle Menu'}
+          action={() => setIsMenuOpen(prev => !prev)}
+        />
+      </div>
 
-             {/*<Menu category={continents} action={setSelectedContinents} />*/}
-             <Screen name='Menu'/>
+      {isMenuOpen &&
+        <Menu
+          setIsFinderOpen={setIsFinderOpen}
+          setIsMenuOpen={setIsMenuOpen}
+        />}
 
-          </header>
-        <div className="min-w-[100vw] h-2/3 bg-slate-950 flex justify-center items-center overflow-hidden scale-70 sm:scale-80
-        relative rounded-full border-4 border-slate-900 px-10 sm:min-h-52">
-          
-          <main className="relative h-80 flex justify-center items-center">
-            <div className="rotate-348 lg:scale-100 md:scale-90 sm:scale-80 scale-70">
+      {currentCountry === null && isFinderOpen && !isMenuOpen &&
+        <CountryFinder
+          setCurrentCountry={setCurrentCountry}
+        />}
 
-              <PlanetEarth />
+      {currentCountry !== null && isFinderOpen &&
+        <CountryHub
+          currentCountry={currentCountry}
+        />}
 
-            </div>
-          </main>
 
-        </div>
-           {/*languages.map((language) => (
-          <Screen item={language} action={setSelectedLanguages} /> ))*/}
-      </main>
-
-    
+    </main>
   );
 }
 

@@ -4,16 +4,19 @@ import './index.css'
 import App from './App.jsx'
 import { ThemeProvider } from './context/ThemeContext'
 import { WorldProvider } from './context/WorldContext.jsx'
+import { NotificationProvider } from './context/NotificationContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <WorldProvider>
-      <ThemeProvider>
+    <NotificationProvider>
+      <WorldProvider>
+        <ThemeProvider>
 
-        <App />
+          <App />
 
-      </ThemeProvider>
-    </WorldProvider>
+        </ThemeProvider>
+      </WorldProvider>
+    </NotificationProvider>
 
   </StrictMode>,
 )
