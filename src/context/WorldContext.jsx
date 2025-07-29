@@ -6,12 +6,13 @@ export const WorldContext = createContext();
 
 export const WorldProvider = ({ children }) => {
 
-    const [uiStage, setUiStage] = useState(0);
-    const [rawCountries, setRawCountries] = useState(null);
     const [isFinderOpen, setIsFinderOpen] = useState(false)
+    // Loaded Data Flag
+    const [rawCountries, setRawCountries] = useState(null);
+    const [dataLoaded, setDataLoaded] = useState(false);
 
 
-    //Estados para interacción del usuario
+    //User Interaction States
     const [selectedCountries, setSelectedCountries] = useState(null);
     const [selectedContinent, setSelectedContinent] = useState(null);
     const [countriesInContinent, setCountriesInContinent] = useState([]);
@@ -20,10 +21,10 @@ export const WorldProvider = ({ children }) => {
     const [languageUiName, setLanguageUiName] = useState(null);
     const [hoveredCountries, setHoveredCountries] = useState([]);
 
-    // Estado que disparará el render si los datos están cargados
-    const [dataLoaded, setDataLoaded] = useState(false);
+    //Stages
+    const [uiStage, setUiStage] = useState(0); //Current stage
 
-    const [stages, setStages] = useState([
+    const [stages, setStages] = useState([ //Default Finder Stages
 
         {
             id: 0,
@@ -63,7 +64,7 @@ export const WorldProvider = ({ children }) => {
     };
 
 
-    const languageCountryFinder = () => { //0%
+    const languageCountryFinder = () => { //100%
         setStages([
             {
                 id: 2,
@@ -98,10 +99,13 @@ export const WorldProvider = ({ children }) => {
         ]);
     };
 
-    //AntiStrictMode
-    const didFetch = useRef(false)
     //Notification Tool
     const { notify } = UseNotification()
+
+    //AntiStrictMode
+    const didFetch = useRef(false)
+
+    const hasFlagPreloadedRef = useRef(false);
 
 
     const resetFilters = () => {
@@ -149,7 +153,7 @@ export const WorldProvider = ({ children }) => {
     };
 
 
-    //Setea estados para países y lenguas de un continente.
+    //Sets countries and languages featured in given Continent
     const continentalFilter = (continent) => {
         setSelectedContinent(continent)
         const filteredCountries = countries.filter((country) =>
@@ -188,7 +192,7 @@ export const WorldProvider = ({ children }) => {
         setHoveredCountries(hoveredCountries)
     }
 
-    //Setea estados para países hablantes de un lenguaje.
+    //Equivalent to selectedCountries, for countries with a set language
     const languagesFilter = (language) => {
 
         const availableLanguages = extractLanguages(selectedCountries);
@@ -198,7 +202,7 @@ export const WorldProvider = ({ children }) => {
             .filter((country) =>
                 country.languages.includes(language)
             )
-            .sort((a, b) => a.name.localeCompare(b.name)); // 👈 ordenar alfabéticamente
+            .sort((a, b) => a.name.localeCompare(b.name)); // ABC
 
         if (filteredCountries.length === 1) { countryHover(filteredCountries[0].id) }
 
@@ -211,30 +215,31 @@ export const WorldProvider = ({ children }) => {
         return (rawCountries || [])
             .filter(country =>
                 Array.isArray(country.continents) &&
-                !(country.continents.length === 1 && country.continents[0] === 'Antartica'))
-            //Elimina países cuyo único continente sea la Antártida
+                !(country.continents.length === 1 && country.continents[0] === 'Antarctica' &&
+                country.name.common === 'Antarctica' ))
+            //Remove countries within Antartica territory
             .map((country) => ({
                 id: country.cca2,
                 name: country.name.common,
                 area: country.area,
                 population: country.population,
                 continents: country.continents.filter(c => c !== "Antarctica"),
-                //Elimina Antartida de los países que tienen bases científicas allí
+                //Removes Antartica from the countries.continents featuring scientific bases there.
                 flag: country.flags.svg,
                 languages: Object.values(country.languages).filter(l => !l.includes('Sign Language')) || [],
                 capitals: country.capital || ["N/A"],
                 timezones: country.timezones,
                 latlng: country.latlng,
             }))
-            .sort((a, b) => a.name.localeCompare(b.name)); //Alfabéticamente
-    }, [rawCountries]); // recalcula cuando cargan datos
+            .sort((a, b) => a.name.localeCompare(b.name)); //ABC
+    }, [rawCountries]); // rawCountries results from api Rest COUNTRIES fetching donde by useEffect
 
 
     // Listar continentes y darles un ID
     const continents = useMemo(() => {
         const normalized = countries
             .flatMap(c => c.continents)
-            .filter(Boolean) // quita falsy (null, undefined y string vacío)
+            .filter(Boolean) // Takes off falsy (null, undefined and empty string)
 
         return [...new Set(normalized)]
             .sort()
@@ -251,27 +256,36 @@ export const WorldProvider = ({ children }) => {
         }
     }, [rawCountries, countries]);
 
-    useEffect(() => {
-        selectedCountries?.forEach(country => {
-            const img = new Image()
-            img.onload = () => {
-            }
-            img.src = country.flag // asegurate que sea un URL válido
-        })
-    }, [stages])
+    useEffect(() => { //Flag Precharge
+        if (!countries?.length) return;
 
-    useEffect(() => {
+        countries.forEach((country) => {
+            const img = new Image();
+            img.src = country.flag;
+        });
+
+        notify({
+            id: 'cached-flags',
+            notificationTag: 'Pre-loading flags of the world.',
+            withProgress: false,
+            duration: 5000
+        })
+
+        hasFlagPreloadedRef.current = true;
+    }, [dataLoaded]);
+
+    useEffect(() => { // FETCH API REST COUNTRIES ON CONTEXT LOAD
         const fetch = async () => {
             if (didFetch.current || rawCountries) return
             didFetch.current = true
             try {
-                // Notificación con id fija, para que reemplace la anterior
+                // Fixed Id notification
                 notify({ id: 'loading-countries', notificationTag: 'Loading countries' })
 
                 const data = await restCountries()
                 setRawCountries(data)
 
-                // Reemplaza la anterior por esta
+                // Replaces previous notification (same Id)
                 notify({ id: 'loading-countries', notificationTag: 'Countries Loaded', withProgress: false })
             } catch (error) {
                 console.log(error)
@@ -284,13 +298,14 @@ export const WorldProvider = ({ children }) => {
 
 
     const extractLanguages = (selectedCountries = []) => {
-        // Mapear a arrays de idiomas
+        // Mapping array of arrays
+        // (languages is an array)
         const languagesNested = selectedCountries.map(country => country.languages);
 
-        // Aplanar sin flatMap
+        // to plain array
         const allLanguages = [].concat(...languagesNested);
 
-        // Quitar duplicados y ordenar
+        // Remove duplicates
         return [...new Set(allLanguages)]
             .sort()
             .map((name, i) => ({ id: i + 1, name }));
@@ -313,7 +328,7 @@ export const WorldProvider = ({ children }) => {
     }
 
 
-    const getFillClass = (countryId) => { //Estilos de tailwind para los países en Planet Earth
+    const getFillClass = (countryId) => { //TailWind Styles for World Map countries
 
         //Stage: Continent
         if (stages[uiStage]?.name === 'Continent') {
@@ -321,18 +336,18 @@ export const WorldProvider = ({ children }) => {
             //Continental Filter
             if (selectedContinent !== null &&
                 countriesInContinent?.some((c) => c.id === countryId)) { return 'fill-amber-500' }
-            //Rusia es Bicontinental
+            //Russia gets cut by Continental Frontier
             if (selectedContinent === 'Asia' && countryId === 'RU_asia') { return 'fill-amber-500' }
             else if (selectedContinent === 'Europe' && countryId === 'RU_europe') { return 'fill-amber-500' }
             else { return 'fill-slate-500' } //Default
         }
 
-        //Stage: Language con Filtro continental
+        //Stage: Language w/ continental filter
         if (stages[uiStage]?.name === 'Language' && stages[0]?.name !== 'Language') {
 
             //Language Filter
             if (hoveredLanguages?.some((c) => c.id === countryId)) { return 'fill-amber-500' }
-            //Caso Ruso
+            //Case Russia
             if (countryId === 'RU_europe'
                 && selectedContinent === 'Europe'
                 && hoveredLanguages?.some((c) => c.id === 'RU')) { return 'fill-amber-500' }
@@ -342,32 +357,32 @@ export const WorldProvider = ({ children }) => {
 
             //Continental Language
             if (selectedCountries?.some((c) => c.id === countryId)) { return 'fill-slate-500' }
-            //Caso Ruso
+            //Case Russia
             if (countryId === 'RU_europe' && selectedContinent === 'Europe') { return 'fill-slate-500' }
             if (countryId === 'RU_asia' && selectedContinent === 'Asia') { return 'fill-slate-500' }
 
             if (selectedCountries?.some((c) => c.id !== countryId)) { return 'fill-slate-700' } //Default
         }
 
-        //Stage: Language sin filtro continental
+        //Stage: Language without continental filter
         if (stages[uiStage]?.name === 'Language' && stages[0]?.name === 'Language') {
             if (hoveredLanguages.length === 0) { return 'fill-slate-500' }
             else {
                 //Language Filter
                 if (hoveredLanguages?.some((c) => c.id === countryId)) { return 'fill-amber-500' }
-                //Caso Ruso
+                //Case Russia
                 if (hoveredLanguages?.some((c) => c.id === 'RU' && countryId.includes('RU'))) { return 'fill-amber-500' }
                 else { return 'fill-slate-500' }
             }
         }
 
-        //Stage: Country con filtro continental y de idioma
+        //Stage: Country w/continental & language filter
         if (stages[uiStage]?.name === 'Country'
             && stages[0]?.name !== 'Country'
             && stages[0]?.name !== 'Language') {
 
             if (hoveredCountries?.some((c) => c.id === countryId)) { return 'fill-amber-500' }
-            //caso Ruso
+            //case Russia
             if (countryId === 'RU_europe'
                 && hoveredCountries?.some((c) => c.id === 'RU')) { return 'fill-amber-500' }
             if (countryId === 'RU_asia'
@@ -376,7 +391,7 @@ export const WorldProvider = ({ children }) => {
 
             //Continental Country
             if (selectedCountries?.some((c) => c.id === countryId)) { return 'fill-slate-500' }
-            //Caso Ruso
+            //Case Russia
             if (countryId === 'RU_europe' && selectedContinent === 'Europe' && selectedCountries?.some((c) => c.id === 'RU')) {
                 return 'fill-slate-500'
             }
@@ -385,7 +400,7 @@ export const WorldProvider = ({ children }) => {
             }
 
             if (countriesInContinent?.some((c) => c.id === countryId)) { return 'fill-slate-600' }
-            //Caso Ruso
+            //Case Russia
             if (countryId === 'RU_europe' && selectedContinent === 'Europe' && countriesInContinent?.some((c) => c.id === 'RU')) {
                 return 'fill-slate-600'
             }
@@ -393,7 +408,7 @@ export const WorldProvider = ({ children }) => {
                 return 'fill-slate-600'
             }
 
-            //Stage: Country sin filtros
+            //Stage: Country filterless
             if (countryId.includes('RU') && stages[0]?.name === 'Country') {
                 return 'fill-slate-600'
             }
@@ -402,10 +417,10 @@ export const WorldProvider = ({ children }) => {
             else { return 'fill-slate-600' } //Default para finder By Country
         }
 
-        else //Countries si está en Languages
+        else //Country By Language Mode
         {
             if (hoveredCountries?.some((c) => c.id === countryId)) { return 'fill-amber-500' }
-            //caso Ruso
+            //Case Russia
             if (countryId === 'RU_europe'
                 && hoveredCountries?.some((c) => c.id === 'RU')) { return 'fill-amber-500' }
             if (countryId === 'RU_asia'
@@ -413,7 +428,7 @@ export const WorldProvider = ({ children }) => {
 
 
             if (selectedLanguages?.some((c) => c.id === countryId)) { return 'fill-slate-500' }
-            //Caso Ruso
+            //Case Russia
             if (countryId.includes('RU') && selectedCountries?.some((c) => c.id.includes('RU'))) {
                 return 'fill-slate-500'
             }

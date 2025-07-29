@@ -1,10 +1,9 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { UseWorld } from "./hook/UseWorld";
 import CountryFinder from "./component/CountryFinder";
 import CountryHub from './component/CountryHub'
 import Menu from './component/particle/Menu'
 import Button from "./component/particle/molecule/Button";
-import NotificationTag from "./component/NotificationTag";
 
 const App = () => {
 
@@ -31,6 +30,7 @@ const App = () => {
         <Menu
           setIsFinderOpen={setIsFinderOpen}
           setIsMenuOpen={setIsMenuOpen}
+          setCurrentCountry={setCurrentCountry}
         />}
 
       {currentCountry === null && isFinderOpen && !isMenuOpen &&
@@ -38,9 +38,10 @@ const App = () => {
           setCurrentCountry={setCurrentCountry}
         />}
 
-      {currentCountry !== null && isFinderOpen &&
+      {currentCountry !== null &&
         <CountryHub
           currentCountry={currentCountry}
+          isMenuOpen={isMenuOpen}
         />}
 
 

@@ -1,4 +1,4 @@
-const Bubble = ({ name, action, hover, unhover, stages, uiStage, id, flag = null }) => {
+const Bubble = ({ name, action, hover, unhover, stages = 'Country', uiStage, id, flag = null }) => {
     return (
         <main
             onClick={action}

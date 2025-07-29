@@ -4,7 +4,6 @@ import Button from "./molecule/Button";
 
 const PlanetEarth = ({
   selectedContinent,
-  selectedCountries,
   hoveredCountries,
   continents,
   getFillClass,
@@ -13,34 +12,43 @@ const PlanetEarth = ({
   stages
 }) => {
 
+  const isLoopingStage = () => {
+    const currentStage = stages[uiStage]?.name;
+    const initialStage = stages[0]?.name;
+    const zoomingOut = hoveredCountries.length === 0;
+    const noContinent = selectedContinent === null;
+
+    if (currentStage === 'Continent') return true
+    if (initialStage === 'Country' && zoomingOut) return true
+    if (initialStage === 'Language' && currentStage === 'Language' && zoomingOut) return true
+    if (initialStage === 'Language' && currentStage === 'Country' && zoomingOut) return true
+    if (initialStage === 'Country' && noContinent) return true
+  }
+
+
+  const shouldRepeatMap = () => {
+    const currentStage = stages[uiStage]?.name;
+    const initialStage = stages[0]?.name;
+    const zoomingOut = hoveredCountries.length === 0;
+    const zoomingIn = hoveredCountries.length !== 0;
+
+    if (currentStage === 'Country' && initialStage === 'Country' && zoomingOut) return true
+    if (currentStage === 'Language' && initialStage === 'Language' && zoomingOut) return true
+    if (currentStage === 'Country' && initialStage === 'Language' && zoomingOut) return true
+    if (currentStage === 'Continent' && initialStage === 'Continent') return true
+  }
 
   return (
     <main>
       <div className={`border border-slate-950/25 bg-slate-950/25
         relative w-74 h-74 flex items-start justify-center overflow-hidden
-      ${(stages[uiStage]?.name === 'Continent'
-          || stages[0]?.name === 'Country' && hoveredCountries.length === 0
-          || stages[0]?.name === 'Language' && hoveredCountries.length === 0
-            && stages[0]?.name === 'Language' && stages[uiStage]?.name === 'Language'
-          || stages[uiStage]?.name === 'Country'
-          && selectedContinent === null) ? 'rounded-full rotate-[-12deg]' : 'border-slate-800'}`}>
+      ${isLoopingStage() ? 'rounded-full rotate-[-12deg]' : 'border-slate-800'}`}>
 
         <motion.main
-          key={(stages[uiStage]?.name === 'Continent'
-            || stages[0]?.name === 'Country' && hoveredCountries.length === 0
-            || stages[0]?.name === 'Language' && hoveredCountries.length === 0
-              && stages[0]?.name === 'Language' && stages[uiStage]?.name === 'Language'
-            || stages[uiStage]?.name === 'Country'
-            && selectedContinent === null) ? 'loop' : 'static'} //Fuerza reinicio
+          key={isLoopingStage() ? 'loop' : 'static'} //Fuerza reinicio
           initial={{ x: -180 }}
           animate={{
-            x:
-              stages[uiStage]?.name === 'Continent'
-                || stages[0]?.name === 'Country' && hoveredCountries.length === 0
-                || stages[0]?.name === 'Language' && hoveredCountries.length === 0
-                  && stages[0]?.name === 'Language' && stages[uiStage]?.name === 'Language'
-                || stages[uiStage]?.name === 'Country'
-                && selectedContinent === null
+            x: isLoopingStage()
                 ? -652 // Loop infinito
                 : (selectedContinent === continents[0]?.name)
                   ? -240 // Africa
@@ -55,24 +63,9 @@ const PlanetEarth = ({
                           : -130, // South America
           }}
           transition={{
-            duration: (stages[uiStage]?.name === 'Continent'
-              || stages[0]?.name === 'Country' && hoveredCountries.length === 0
-              || stages[0]?.name === 'Language' && hoveredCountries.length === 0
-                && stages[0]?.name === 'Language' && stages[uiStage]?.name === 'Language'
-              || stages[uiStage]?.name === 'Country'
-              && selectedContinent === null) ? 30 : 3,
-            ease: (stages[uiStage]?.name === 'Continent'
-              || stages[0]?.name === 'Country' && hoveredCountries.length === 0
-              || stages[0]?.name === 'Language' && hoveredCountries.length === 0
-                && stages[0]?.name === 'Language' && stages[uiStage]?.name === 'Language'
-              || stages[uiStage]?.name === 'Country'
-              && selectedContinent === null) ? "linear" : "easeOut",
-            repeat: (stages[uiStage]?.name === 'Continent'
-              || stages[0]?.name === 'Country' && hoveredCountries.length === 0
-              || stages[0]?.name === 'Language' && hoveredCountries.length === 0
-                && stages[0]?.name === 'Language' && stages[uiStage]?.name === 'Language'
-              || stages[uiStage]?.name === 'Country'
-              && selectedContinent === null) ? Infinity : 0,
+            duration: isLoopingStage() ? 30 : 3,
+            ease: isLoopingStage() ? "linear" : "easeOut",
+            repeat: isLoopingStage() ? Infinity : 0,
             repeatType: "loop",
           }}
         >
@@ -95,12 +88,7 @@ const PlanetEarth = ({
           </aside>
           <aside className={`
             absolute left-118 w-124 h-74
-            ${stages[uiStage]?.name === 'Continent'
-              || stages[uiStage]?.name !== 'Country' && stages[uiStage]?.name !== 'Language'
-              || stages[0]?.name === 'Country' && hoveredCountries.length === 0
-              || stages[0]?.name === 'Language' && hoveredCountries.length === 0
-              || stages[0]?.name === 'Language' && stages[uiStage]?.name === 'Country' && hoveredCountries.length === 0
-              ? '' : 'hidden'}`}>
+            ${shouldRepeatMap() ? '' : 'hidden'}`}>
             <WorldMap
               getFillClass={getFillClass}
             />

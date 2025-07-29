@@ -5,17 +5,20 @@ import App from './App.jsx'
 import { ThemeProvider } from './context/ThemeContext'
 import { WorldProvider } from './context/WorldContext.jsx'
 import { NotificationProvider } from './context/NotificationContext.jsx'
+import { MarkersProvider } from './context/MarkersContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <NotificationProvider>
-      <WorldProvider>
-        <ThemeProvider>
+      <ThemeProvider>
 
-          <App />
+        <MarkersProvider>
+          <WorldProvider>
+            <App />
+          </WorldProvider>
+        </MarkersProvider>
 
-        </ThemeProvider>
-      </WorldProvider>
+      </ThemeProvider>
     </NotificationProvider>
 
   </StrictMode>,
