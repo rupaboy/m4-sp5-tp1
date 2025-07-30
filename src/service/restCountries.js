@@ -1,3 +1,4 @@
+
 export const restCountries = async () => {
 
     try {
@@ -6,6 +7,7 @@ export const restCountries = async () => {
             
         if (!res.ok) {
             throw new Error(`Error en la solicitud: ${res.status}`);
+
         }
         return await res.json();
 

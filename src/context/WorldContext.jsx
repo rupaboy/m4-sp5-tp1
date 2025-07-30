@@ -129,6 +129,7 @@ export const WorldProvider = ({ children }) => {
 
         if (stages[uiStage - 1].name === 'Language' && stages[0].name === 'Language') {
             setSelectedCountries(countries)
+            countryContinentalFilterRemoval()
             setSelectedLanguages([])
             countryHover(null)
             languageHover([])
@@ -147,9 +148,11 @@ export const WorldProvider = ({ children }) => {
 
 
     const nextStage = () => {
+        
         setUiStage((prevStage) =>
             prevStage + 1 < stages.length ? prevStage + 1 : prevStage
         );
+
     };
 
 
@@ -204,7 +207,10 @@ export const WorldProvider = ({ children }) => {
             )
             .sort((a, b) => a.name.localeCompare(b.name)); // ABC
 
-        if (filteredCountries.length === 1) { countryHover(filteredCountries[0].id) }
+        if (filteredCountries.length === 1) {
+            countryHover(filteredCountries[0].id)
+            setSelectedContinent(filteredCountries[0].continents[0])
+        }
 
         setSelectedCountries(filteredCountries);
     };
@@ -247,7 +253,6 @@ export const WorldProvider = ({ children }) => {
                 { id: i + 1, name }
             ));
     }, [countries]);
-
 
     useEffect(() => {
         if (rawCountries && !dataLoaded) {
@@ -471,6 +476,7 @@ export const WorldProvider = ({ children }) => {
                 continentalFilter,
                 selectedCountries,
                 selectedContinent,
+                setSelectedContinent,
                 countryFinder,
                 continentCountryFinder,
                 languageCountryFinder,

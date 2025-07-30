@@ -13,6 +13,7 @@ const CountryFinder = ({ setCurrentCountry }) => {
     nextStage,
     previousStage,
     selectedContinent,
+    setSelectedContinent,
     countryContinentalFilterRemoval,
     countriesInContinent,
     selectedLanguages,
@@ -320,25 +321,31 @@ const CountryFinder = ({ setCurrentCountry }) => {
 
 
           {
-            stages[0]?.name === 'Language'
-            && stages[uiStage]?.name === 'Country'  // Second Language Country Finder Stage
+            stages[uiStage]?.name === 'Country'
+            && stages[0]?.name === 'Language'  // Second Language Country Finder Stage
 
             && selectedCountries?.map((country) => (
               <Bubble
                 key={country.id}
                 name={country.name}
                 flag={country.flag}
-                action={() => setCurrentCountry(country)}
+                action={() => {
+                  setCurrentCountry(country)
+                }}
                 hover={() => {
                   countryHover(country.id)
                   countryContinentalFilter(country.continents[0])
                 }
                 }
                 unhover={() => {
-
-                  selectedCountries.length !== 1 ? countryHover(null) : countryHover(country.id)
-                  countryContinentalFilterRemoval()
-
+                  if (selectedCountries.length !== 1) {
+                    //Si selectedCountries es un array null o si es mayor a 1
+                    countryHover(null)
+                    countryContinentalFilterRemoval()
+                  } else {
+                    countryHover(country.id)
+                  }
+                  
                 }}
                 uiStage={uiStage}
                 stages={stages}
@@ -353,7 +360,7 @@ const CountryFinder = ({ setCurrentCountry }) => {
                 flag={country.flag}
                 action={() => setCurrentCountry(country)}
                 hover={() => {
-                  if (stages[0].name !== 'Country') {
+                  if (stages[0].name === 'Continent') {
                     countryHover(country.id)
                   } else {
                     countryContinentalFilter(country.continents[0])
@@ -361,7 +368,7 @@ const CountryFinder = ({ setCurrentCountry }) => {
                   }
                 }}
                 unhover={() => {
-                  if (stages[0].name !== 'Country') {
+                  if (stages[0].name === 'Continent') {
                     selectedCountries.length !== 1 ? countryHover(null) : countryHover(country.id)
                   } else {
                     selectedCountries.length !== 1 ? countryHover(null) : countryHover(country.id)

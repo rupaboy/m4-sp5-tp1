@@ -4,6 +4,7 @@ import Button from "./molecule/Button";
 
 const PlanetEarth = ({
   selectedContinent,
+  selectedCountries,
   hoveredCountries,
   continents,
   getFillClass,
@@ -30,12 +31,11 @@ const PlanetEarth = ({
     const currentStage = stages[uiStage]?.name;
     const initialStage = stages[0]?.name;
     const zoomingOut = hoveredCountries.length === 0;
-    const zoomingIn = hoveredCountries.length !== 0;
 
-    if (currentStage === 'Country' && initialStage === 'Country' && zoomingOut) return true
-    if (currentStage === 'Language' && initialStage === 'Language' && zoomingOut) return true
-    if (currentStage === 'Country' && initialStage === 'Language' && zoomingOut) return true
-    if (currentStage === 'Continent' && initialStage === 'Continent') return true
+    if (initialStage === 'Country' && currentStage === 'Country' && zoomingOut) return true
+    if (initialStage === 'Language' && currentStage === 'Language' && zoomingOut) return true
+    if (initialStage === 'Language' && currentStage === 'Country' && zoomingOut) return true
+    if (initialStage === 'Continent' && currentStage === 'Continent') return true
   }
 
   return (
