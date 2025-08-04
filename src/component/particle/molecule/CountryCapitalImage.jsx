@@ -36,8 +36,7 @@ const CountryCapitalImage = ({ capital }) => {
       .catch((err) => {
         notify({
           id: `loading-${capital}`,
-          notificationTag: `Error obtaining image for ${capital}`,
-          ratio: err.message,
+          notificationTag: `Error obtaining image for ${capital}: ${err.message}`,
           duration: 2000,
           withProgress: false,
         });

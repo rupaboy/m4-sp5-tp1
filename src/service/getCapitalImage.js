@@ -1,14 +1,17 @@
+// services/getCapitalImage.js
+import axios from "axios";
+
 const getCapitalImage = async (capitalName) => {
-  const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(capitalName)}`);
+  try {
+    const res = await axios.get(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(capitalName)}`
+    );
 
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    return res.data.thumbnail?.source || null;
+  } catch (err) {
+    // Lanza el error para que lo capture el componente
+    throw new Error(err?.response?.statusText || err.message);
   }
-
-  const data = await res.json();
-
-  // Si thumbnail es undefined, no intentes mapear nada aquí, solo devuelve null
-  return data.thumbnail?.source || null;
 };
 
-export default getCapitalImage
+export default getCapitalImage;
