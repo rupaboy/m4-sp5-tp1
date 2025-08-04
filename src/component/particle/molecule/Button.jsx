@@ -12,11 +12,12 @@ const Button = ( {
         title={title}
         onClick={action}
         className={`${ratio}
-        mt-2 h-8 leading-7 rounded cursor-pointer
-        hover:bg-slate-500/30 bg-slate-700/30
+        mt-2 h-8 leading-8 rounded cursor-pointer
+        dark:hover:bg-slate-500/80 dark:bg-slate-700/80
+        hover:bg-slate-100/80 bg-slate-100/60
         font-black`}>
             {buttonText}
-            {buttonName && <p className='text-slate-300 font-light text-xs grid justify-center mt-1'>{buttonName}</p>}
+            {buttonName && <p className='font-light text-xs grid justify-center'>{buttonName}</p>}
         </button>
     )
 }

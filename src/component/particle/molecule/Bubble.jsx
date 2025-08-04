@@ -5,8 +5,9 @@ const Bubble = ({ name, action, hover, unhover, stages = 'Country', uiStage, id,
             onMouseEnter={hover}
             onMouseLeave={unhover}
             className={`
-                items-center grid my-auto hover:bg-slate-500/30
-                py-1 min-h-9 bg-slate-800/70 select-none cursor-pointer
+                dark:hover:bg-slate-500/30 dark:bg-slate-700/30 dark:hover:text-amber-500
+                hover:bg-slate-100/40 bg-slate-200/25 hover:text-amber-800
+                items-center grid my-auto py-1 min-h-9 select-none cursor-pointer
                 min-w-0 w-[11em] h-[3em] rounded-sm px-2
                 ${stages[uiStage]?.name === 'Language' && 'justify-center'}
                 ${stages[uiStage]?.name === 'Country' && 'justify-start'}

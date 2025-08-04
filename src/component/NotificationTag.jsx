@@ -34,11 +34,11 @@ const NotificationTag = ({
           transition={{ duration: 0.4 }}
           style={{ top: 10 + verticalOffset }} // mover hacia abajo según índice
           className={`${ratio}
-            fixed left-1/2 -translate-x-1/2 z-50
-            grid items-center text-slate-300/78
-            py-1 mt-3 bg-slate-800/70 select-none cursor-pointer
+            fixed left-1/2 -translate-x-1/2 z-50 grid items-center
+            dark:text-slate-300/78 dark:bg-slate-900/70
+            text-slate-800/78 bg-slate-200/70
+            py-1 mt-3 select-none cursor-pointer
             min-w-0 max-w-[86vw] min-h-[3em] rounded-sm px-2 text-center
-            hover:bg-slate-500/30
           `}
         >
           <span className="line-clamp-3">{notificationTag}</span>

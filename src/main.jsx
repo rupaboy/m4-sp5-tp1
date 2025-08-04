@@ -6,20 +6,23 @@ import { ThemeProvider } from './context/ThemeContext'
 import { WorldProvider } from './context/WorldContext.jsx'
 import { NotificationProvider } from './context/NotificationContext.jsx'
 import { MarkersProvider } from './context/MarkersContext.jsx'
+import { UserProvider } from './context/UserContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <UserProvider>
+    <ThemeProvider>
     <NotificationProvider>
-      <ThemeProvider>
-
+      
         <MarkersProvider>
           <WorldProvider>
             <App />
           </WorldProvider>
         </MarkersProvider>
-
-      </ThemeProvider>
+      
     </NotificationProvider>
+    </ThemeProvider>
+    </UserProvider>
 
   </StrictMode>,
 )

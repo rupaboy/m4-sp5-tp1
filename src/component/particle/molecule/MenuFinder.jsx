@@ -1,7 +1,7 @@
 import { UseWorld } from '../../../hook/UseWorld';
 import Button from './Button';
 
-const MenuFinder = ({ setIsMenuOpen, setCurrentCountry }) => {
+const MenuFinder = ({ setIsMenuOpen, setCurrentCountry, setIsSearchModeSet }) => {
 
   const {
     setIsFinderOpen,
@@ -13,61 +13,61 @@ const MenuFinder = ({ setIsMenuOpen, setCurrentCountry }) => {
   } = UseWorld()
 
   return (
-    <div className={`${'flex flex-col gap-10 sm:flex-row items-center justify-center h-full'}`}>
+    <div className={`${'grid grid-cols-2 gap-10 md:flex items-center justify-center'}`}>
 
       <Button
-        buttonText={<i className='bi-globe-americas text-slate-400' />}
+        buttonText={<i className='bi-globe-americas' />}
         title={`Find Country By Continent`}
-        ratio={'w-20'}
-        buttonName={'Continent'}
+        ratio={'w-20 md:mb-22'}
+        buttonName={'By Continent'}
         action={() => {
           resetFilters()
           setCurrentCountry(null)
           continentCountryFinder()
           setIsMenuOpen(false)
-          setIsFinderOpen(true)
+          setIsSearchModeSet(true)
         }}
       />
 
       <Button
-        buttonText={<i className='bi-globe text-slate-400' />}
+        buttonText={<i className='bi-globe' />}
         title={`Find Country By Continent > Language`}
-        ratio={'w-20'}
-        buttonName={'Continent/Language'}
+        ratio={'w-20 md:mb-22'}
+        buttonName={'By Continent/Language'}
         action={() => {
           resetFilters()
           setCurrentCountry(null)
           continentLanguageCountryFinder()
           setIsMenuOpen(false)
-          setIsFinderOpen(true)
+          setIsSearchModeSet(true)
         }}
       />
 
       <Button
-        buttonText={<i className='bi-translate text-slate-400' />}
+        buttonText={<i className='bi-translate' />}
         title={`Find Country By Language`}
-        ratio={'w-20'}
-        buttonName={'Language'}
+        ratio={'w-20 md:mb-22'}
+        buttonName={'By Language'}
         action={() => {
           resetFilters()
           setCurrentCountry(null)
           languageCountryFinder()
           setIsMenuOpen(false)
-          setIsFinderOpen(true)
+          setIsSearchModeSet(true)
         }}
       />
 
       <Button
-        buttonText={<i className='bi-alphabet-uppercase text-slate-400' />}
+        buttonText={<i className='bi-alphabet-uppercase' />}
         title={`Find Country By Name`}
-        ratio={'w-20'}
-        buttonName={'Name'}
+        ratio={'w-20 md:mb-22'}
+        buttonName={'List All'}
         action={() => {
           resetFilters()
           setCurrentCountry(null)
           countryFinder()
           setIsMenuOpen(false)
-          setIsFinderOpen(true)
+          setIsSearchModeSet(true)
         }}
       />
     </div>

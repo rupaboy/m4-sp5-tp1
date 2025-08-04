@@ -4,18 +4,36 @@ import { UseMarkers } from '../hook/UseMarkers'
 import CountryCapitalImage from './particle/molecule/CountryCapitalImage'
 
 
-const CountryHub = ({ currentCountry, isMenuOpen }) => {
+const CountryHub = ({ currentCountry = null, setCurrentCountry, isMenuOpen, isFinderOpen }) => {
 
   const { addToMarkers, isMarkedAlreadyComparisson, removeFromMarkers } = UseMarkers()
 
+
   return (
 
-    <main className={`${isMenuOpen ? 'hidden' : ''} text-center text-slate-300 h-auto overflow-y-scroll`}>
+    <main className={`${isMenuOpen || isFinderOpen ? 'hidden' : ''}
+    text-center h-screen w-screen overflow-y-scroll`}>
 
-      <h2 className='font-extrabold text-md mt-8 mb-8'>{currentCountry.name}</h2>
+        <Button
+          ratio={'z-100 mx-auto w-8 absolute left-16 sm:left-28 mt-6'}
+          title={`Toggle Search Mode`}
+          buttonText={<i className='bi-house' />}
+          buttonName={`Home`}
+          action={() => setCurrentCountry(null)}
+        />
+      <div className="items-center justify-center h-full grid sm:flex flex-wrap gap-2">
+        <div className='fixed top-0 sm:left-0
+        pt-20 sm:pt-0 w-screen sm:h-screen text-nowrap flex-wrap sm:w-20
+        dark:bg-slate-950 bg-slate-300
+        dark:text-slate-500 text-slate-700 border-b sm:border-b-0 sm:border-r
+        sm:border-amber-800 border-b-amber-800 dark:sm:border-amber-500 dark:border-b-amber-500
+        text-2xl flex items-center justify-center'>
+          {/* Nombre de País con guarda responsiva */}
+          <h2 className='leading-12 font-extrabold sm:rotate-[-90deg] text-3xl'>{currentCountry.name}</h2>
+          </div>
 
-      <div className="items-center justify-start flex flex-col sm:flex-row flex-wrap gap-12">
-        <aside className="space-y-2">
+        {/* Datos de API Rest Countries */}
+        <aside className="space-y-2 mx-auto mt-32 sm:mt-0 sm:ml-32">
           <Table header1="Continents" footer1={currentCountry.continents.join(', ')} />
           <Table header1="Area" footer1={`${currentCountry.area.toLocaleString('de-DE')} km\u00B2`} />
           <Table header1="Population" footer1={currentCountry.population.toLocaleString('de-DE')} />
@@ -25,27 +43,37 @@ const CountryHub = ({ currentCountry, isMenuOpen }) => {
             footer1={currentCountry.timezones.map((tz, i) => <p key={i}>{tz}</p>)}
           />
 
-          {!isMarkedAlreadyComparisson(currentCountry) &&
-            <Button //Add To Markers
-              buttonText={<i className="bi bi-star" />}
-              buttonName="To markers"
-              ratio="text-center px-2 text-xs"
-              title={currentCountry.name}
-              action={() => addToMarkers(currentCountry)}
-            />}
+          <div className='flex gap-6 mt-6 items-center justify-center'>
+            {!isMarkedAlreadyComparisson(currentCountry) &&
+              <Button //Add To Markers
+                buttonText={<i className="bi bi-star" />}
+                buttonName="Mark"
+                ratio="text-center px-2 text-xs w-8 mb-10"
+                title={'Add ' + currentCountry.name + ' to Markers'}
+                action={() => addToMarkers(currentCountry)}
+              />}
 
-          {isMarkedAlreadyComparisson(currentCountry) &&
-            <Button //Revove From Markers
-              buttonText={<i className="bi bi-star" />}
-              buttonName="Unmark"
-              ratio="text-center px-2 text-xs"
-              title={currentCountry.name}
-              action={() => removeFromMarkers(currentCountry)}
-            />}
+            {isMarkedAlreadyComparisson(currentCountry) &&
+              <Button //Revove From Markers
+                buttonText={<i className="bi bi-star-fill" />}
+                buttonName="Unmark"
+                ratio="text-center px-2 text-xs w-8 mb-10"
+                title={'Remove ' + currentCountry.name + ' from Markers'}
+                action={() => removeFromMarkers(currentCountry)}
+              />}
+
+            <Button //DUMMY BUTTON
+              buttonText={<i className="bi bi-music-note-list" />}
+              buttonName="Radio"
+              ratio="text-center px-2 text-xs w-8 mb-10"
+              title={'Fetch Radios of ' + currentCountry.name}
+              action={() => console.log('radio: ', currentCountry.name)}
+            />
+          </div>
 
 
         </aside>
-        <aside className='w-[300px] max-w-full'>
+        <aside className='w-[300px] mx-auto flex items-center justify-center pb-10 sm:pb-0'>
           {currentCountry.capitals.length !== 0 && //No se renderiza si no hay una capital
             currentCountry.capitals.map((capital, i) => (
               <CountryCapitalImage capital={capital} key={i} />

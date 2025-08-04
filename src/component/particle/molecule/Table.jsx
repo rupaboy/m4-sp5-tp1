@@ -21,7 +21,7 @@ const Table = ({
                     <header>
                         {header1}
                     </header>
-                    <footer className='text-amber-400'>
+                    <footer className='text-amber-950 dark:text-amber-400'>
                         {footer1}
                     </footer>
                 </div>
@@ -30,7 +30,7 @@ const Table = ({
                     <header>
                         {header2}
                     </header>
-                    <footer className='text-amber-400'>
+                    <footer className='text-amber-950 dark:text-amber-400'>
                         {footer2}
                     </footer>
                 </div>
@@ -42,7 +42,7 @@ const Table = ({
                         <header>
                             {header3}
                         </header>
-                        <footer className='text-amber-400'>
+                        <footer className='text-amber-950 dark:text-amber-400'>
                             {footer3}
                         </footer>
                     </div>
@@ -51,7 +51,7 @@ const Table = ({
                             <header>
                                 {header4}
                             </header>
-                            <footer className='text-amber-400'>
+                            <footer className='text-amber-950 dark:text-amber-400'>
                                 {footer4}
                             </footer>
                         </div>}

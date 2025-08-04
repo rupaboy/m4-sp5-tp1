@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import Button from "./molecule/Button";
 
 const PlanetEarth = ({
+  setIsSearchModeSet,
   selectedContinent,
-  selectedCountries,
   hoveredCountries,
   continents,
   getFillClass,
@@ -40,7 +40,9 @@ const PlanetEarth = ({
 
   return (
     <main>
-      <div className={`border border-slate-950/25 bg-slate-950/25
+      <div className={`
+        bg-radial from-indigo-950 to-slate-950/90
+        border border-slate-950/25
         relative w-74 h-74 flex items-start justify-center overflow-hidden
       ${isLoopingStage() ? 'rounded-full rotate-[-12deg]' : 'border-slate-800'}`}>
 
@@ -100,12 +102,22 @@ const PlanetEarth = ({
         uiStage !== 0
         && <Button
           ratio={'w-8 absolute md:translate-x-66'}
-          title={`${uiStage}`}
-          buttonText={<i className='bi-caret-left text-slate-400' />}
+          title={`Back to ${stages[uiStage -1]?.name} Selector`}
+          buttonText={<i className='bi-caret-left' />}
+          buttonName={`${stages[uiStage -1]?.name} Selector`}
           action={() => previousStage()}
         />
       }
-
+      {
+        uiStage === 0
+        && <Button
+          ratio={'w-8 absolute md:translate-x-66'}
+          title={`Toggle Search Mode`}
+          buttonText={<i className='bi-caret-left' />}
+          buttonName={`Search Mode`}
+          action={() => setIsSearchModeSet(false)}
+        />
+      }
     </main >
   );
 }

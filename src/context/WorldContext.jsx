@@ -11,6 +11,8 @@ export const WorldProvider = ({ children }) => {
     const [rawCountries, setRawCountries] = useState(null);
     const [dataLoaded, setDataLoaded] = useState(false);
 
+    //Search Function
+    const [searchResults, setSearchResults] = useState([]);
 
     //User Interaction States
     const [selectedCountries, setSelectedCountries] = useState(null);
@@ -148,7 +150,7 @@ export const WorldProvider = ({ children }) => {
 
 
     const nextStage = () => {
-        
+
         setUiStage((prevStage) =>
             prevStage + 1 < stages.length ? prevStage + 1 : prevStage
         );
@@ -222,7 +224,7 @@ export const WorldProvider = ({ children }) => {
             .filter(country =>
                 Array.isArray(country.continents) &&
                 !(country.continents.length === 1 && country.continents[0] === 'Antarctica' &&
-                country.name.common === 'Antarctica' ))
+                    country.name.common === 'Antarctica'))
             //Remove countries within Antartica territory
             .map((country) => ({
                 id: country.cca2,
@@ -253,6 +255,15 @@ export const WorldProvider = ({ children }) => {
                 { id: i + 1, name }
             ));
     }, [countries]);
+
+    //Search Function
+    const searchCountries = (query) => {
+        if (query.length < 3) return setSearchResults([]);
+        const matches = countries.filter((c) =>
+            c.name.toLowerCase().includes(query.toLowerCase())
+        );
+        setSearchResults(matches)
+    }
 
     useEffect(() => {
         if (rawCountries && !dataLoaded) {
@@ -297,8 +308,8 @@ export const WorldProvider = ({ children }) => {
             }
         }
 
-        fetch()
-    }, [])
+        isFinderOpen && fetch()
+    }, [isFinderOpen])
 
 
 
@@ -448,6 +459,8 @@ export const WorldProvider = ({ children }) => {
     return (
         <WorldContext.Provider
             value={{
+                searchCountries,
+                searchResults,
                 countries,
                 stages,
                 setIsFinderOpen,
