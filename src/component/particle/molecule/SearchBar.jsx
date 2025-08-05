@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { UseWorld } from "../../../hook/UseWorld"
 
 
-const SearchBar = ({ setCurrentCountry, setIsFinderOpen }) => {
+const SearchBar = ({ toCountryHub, setIsFinderOpen }) => {
 
     const [query, setQuery] = useState('');
     const { searchCountries, searchResults } = UseWorld()
@@ -35,7 +35,7 @@ const SearchBar = ({ setCurrentCountry, setIsFinderOpen }) => {
                     title={'Search Country Name'}
                     action={() => {
                         if (searchResults.length === 1){
-                            setCurrentCountry(searchResults[0])
+                            toCountryHub(searchResults[0])
                             setIsFinderOpen(false)
                         }
                     }}
@@ -54,7 +54,7 @@ const SearchBar = ({ setCurrentCountry, setIsFinderOpen }) => {
                     key={result.id}
                     name={result.name}
                     action={() => {
-                      setCurrentCountry(result)
+                      toCountryHub(result)
                       setIsFinderOpen(false)
                     }}
                     id={result.id}

@@ -7,11 +7,13 @@ import { WorldProvider } from './context/WorldContext.jsx'
 import { NotificationProvider } from './context/NotificationContext.jsx'
 import { MarkersProvider } from './context/MarkersContext.jsx'
 import { UserProvider } from './context/UserContext.jsx'
+import { UiProvider } from './context/UiContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <UserProvider>
     <ThemeProvider>
+      <UiProvider>
     <NotificationProvider>
       
         <MarkersProvider>
@@ -21,6 +23,7 @@ createRoot(document.getElementById('root')).render(
         </MarkersProvider>
       
     </NotificationProvider>
+    </UiProvider>
     </ThemeProvider>
     </UserProvider>
 

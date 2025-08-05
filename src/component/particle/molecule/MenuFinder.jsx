@@ -1,10 +1,9 @@
 import { UseWorld } from '../../../hook/UseWorld';
 import Button from './Button';
 
-const MenuFinder = ({ setIsMenuOpen, setCurrentCountry, setIsSearchModeSet }) => {
+const MenuFinder = ({ setIsMenuOpen, toCountryHub, setIsSearchModeSet }) => {
 
   const {
-    setIsFinderOpen,
     resetFilters,
     countryFinder,
     continentCountryFinder,
@@ -22,7 +21,6 @@ const MenuFinder = ({ setIsMenuOpen, setCurrentCountry, setIsSearchModeSet }) =>
         buttonName={'By Continent'}
         action={() => {
           resetFilters()
-          setCurrentCountry(null)
           continentCountryFinder()
           setIsMenuOpen(false)
           setIsSearchModeSet(true)
@@ -36,7 +34,7 @@ const MenuFinder = ({ setIsMenuOpen, setCurrentCountry, setIsSearchModeSet }) =>
         buttonName={'By Continent/Language'}
         action={() => {
           resetFilters()
-          setCurrentCountry(null)
+          toCountryHub(null)
           continentLanguageCountryFinder()
           setIsMenuOpen(false)
           setIsSearchModeSet(true)
@@ -50,7 +48,7 @@ const MenuFinder = ({ setIsMenuOpen, setCurrentCountry, setIsSearchModeSet }) =>
         buttonName={'By Language'}
         action={() => {
           resetFilters()
-          setCurrentCountry(null)
+          toCountryHub(null)
           languageCountryFinder()
           setIsMenuOpen(false)
           setIsSearchModeSet(true)
@@ -64,7 +62,7 @@ const MenuFinder = ({ setIsMenuOpen, setCurrentCountry, setIsSearchModeSet }) =>
         buttonName={'List All'}
         action={() => {
           resetFilters()
-          setCurrentCountry(null)
+          toCountryHub(null)
           countryFinder()
           setIsMenuOpen(false)
           setIsSearchModeSet(true)

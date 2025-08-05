@@ -2,14 +2,17 @@ import { useState } from "react"
 import { UseMarkers } from "../hook/UseMarkers"
 import MarkersList from "./MarkersList"
 import Button from "./particle/molecule/Button"
+import { UseUi } from "../hook/UseUi"
 
 
-const Dashboard = ({ isMenuOpen, isFinderOpen, setIsFinderOpen, currentCountry, setCurrentCountry, setIsMenuOpen }) => {
+const Dashboard = ({ currentCountry, toCountryHub }) => {
 
   const [showMarkers, setShowMarkers] = useState(true)
-  const { markers, clearMarkers } = UseMarkers()
+  const { markers } = UseMarkers()
+  const { isFinderOpen, isMenuOpen, isHubOpen, setIsHubOpen, setIsDashBoardOpen, isDashBoardOpen } = UseUi()
+
   return (
-    <main className={`${isMenuOpen || isFinderOpen || currentCountry !== null ? 'hidden' : ''}`}>
+    <main className={`${isMenuOpen || isFinderOpen ? 'hidden' : ''}`}>
 
       <div className="absolute left-4 top-1/2 translate-y-[-2em]">
         <Button
@@ -18,13 +21,11 @@ const Dashboard = ({ isMenuOpen, isFinderOpen, setIsFinderOpen, currentCountry, 
           action={() => showMarkers ? setShowMarkers(false) : setShowMarkers(true)}
         />
       </div>
+
       {markers.length !== 0 && showMarkers &&
         <MarkersList
-          markers={markers}
-          clearMarkers={clearMarkers}
-          setCurrentCountry={setCurrentCountry}
-          setIsMenuOpen={setIsMenuOpen}
-          setIsFinderOpen={setIsFinderOpen} />
+          toCountryHub={toCountryHub}
+        />
       }
 
     </main>

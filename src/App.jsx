@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { UseWorld } from "./hook/UseWorld";
+import { UseUi } from "./hook/UseUi";
 import { useTheme } from "./hook/UseTheme";
 import CountryFinder from "./component/CountryFinder";
 import CountryHub from './component/CountryHub'
@@ -7,18 +7,31 @@ import Menu from './component/particle/Menu'
 import Button from "./component/particle/molecule/Button";
 import Dashboard from "./component/Dashboard";
 import { useUser } from './hook/UseUser'
+import Unregistered from "./component/Unregistered";
 
 const App = () => {
 
+  const [ currentCountry, setCurrentCountry ] = useState(null)
+  const toCountryHub = ( selectedCountry ) => {
+    setCurrentCountry(prev => selectedCountry !== prev ? selectedCountry : prev)
+    setIsHubOpen(true)
+    setIsDashBoardOpen(false)
+  }
+
+  const { isDark, toggleTheme } = useTheme()
   const { isLoggedIn, logInUser, logOutUser, hasStoragedUser } = useUser()
 
+  const {
+    isMenuOpen,
+    setIsMenuOpen,
+    isFinderOpen,
+    setIsFinderOpen,
+    isHubOpen,
+    setIsHubOpen,
+    isDashBoardOpen,
+    setIsDashBoardOpen
+  } = UseUi()
 
-  const [ currentCountry, setCurrentCountry ] = useState(null)
-  
-  const [ isMenuOpen, setIsMenuOpen ] = useState(false)
-  const { isFinderOpen, setIsFinderOpen } = UseWorld()
-  const { isDark, toggleTheme } = useTheme()
-  
   return (
     <main className={`${isFinderOpen ? '' : ''}
       dark:bg-radial dark:from-slate-800 dark:to-slate-950
@@ -69,57 +82,40 @@ const App = () => {
       </div>}
 
       {isMenuOpen &&
-        <Menu
-          setIsFinderOpen={setIsFinderOpen}
-          setIsMenuOpen={setIsMenuOpen}
-        />}
+        <Menu/>}
 
       {isFinderOpen &&
         <CountryFinder
-          setCurrentCountry={setCurrentCountry}
-          setIsMenuOpen={setIsMenuOpen}
-          setIsFinderOpen={setIsFinderOpen}
-          isMenuOpen={isMenuOpen}
+          toCountryHub={toCountryHub}
         />}
 
-      {currentCountry !== null &&
+      {isHubOpen && !isFinderOpen && currentCountry !== null &&
         <CountryHub
           currentCountry={currentCountry}
-          setCurrentCountry={setCurrentCountry}
-          isFinderOpen={isFinderOpen}
-          isMenuOpen={isMenuOpen}
         />}
 
-        { isLoggedIn &&
+        { isLoggedIn && isDashBoardOpen &&
           <Dashboard
-          setCurrentCountry={setCurrentCountry}
-          setIsMenuOpen={setIsMenuOpen}
-          setIsFinderOpen={setIsFinderOpen}
+          toCountryHub={toCountryHub}
           currentCountry={currentCountry}
-          isFinderOpen={isFinderOpen}
-          isMenuOpen={isMenuOpen}
         />}
 
-        { !isMenuOpen && !isFinderOpen && !isLoggedIn && !hasStoragedUser && currentCountry === null &&
-          <div className="w-full flex flex-col items-center justify-center">
+              {
+        currentCountry !== null && isHubOpen && isDashBoardOpen && !isFinderOpen &&
+        <div className="absolute left-4 top-1/2 translate-y-[3em]">
+          <Button
+            buttonText={<i className="bi-caret-left" />}
+            buttonName={`${`current: ${currentCountry.id}`}`}
+            action={() => {
+              setIsDashBoardOpen(false)
+              setIsHubOpen(true)
+            }}
+          />
+        </div>
+      }
 
-            <h2 className="my-2 border-b border-b-amber-800 dark:border-b-amber-400">You are not registered!</h2>
-            <h2 className="text-xs">Get to know your inner world.</h2>
-            <Button
-            ratio="flex items-center gap-2 px-2 mt-7"
-            buttonText={<i className={'bi-person-plus'}/>}
-            buttonName={'Sign Up'}
-            title={'Register'}
-            />
-
-            <Button
-            ratio="flex items-center gap-2 px-2 mt-4 mb-2 bg-slate-800/0 dark:bg-slate-800/0
-            dark:hover:bg-slate-800/0 hover:bg-slate-800/0 hover:text-amber-800 dark:hover:text-amber-400 underline"
-            buttonText={<i className={'bi-box-arrow-in-right'}/>}
-            buttonName={'Already have an acoount?'}
-            title={'Login'}
-            />
-          </div>
+        { !isMenuOpen && !isFinderOpen && !isLoggedIn && !hasStoragedUser && isDashBoardOpen &&
+          <Unregistered/>
           }
 
     </main>

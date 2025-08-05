@@ -13,6 +13,7 @@ export const MarkersProvider = ({ children }) => {
         setIsMarkersOpen(prev => !prev)
     }*/
 
+
     const addToMarkers = (currentCountry) => {
         if (!isMarkedAlreadyComparisson(currentCountry)) {
             const updatedMarkers = [...markers, currentCountry]
@@ -34,10 +35,11 @@ export const MarkersProvider = ({ children }) => {
     };
 
     const clearMarkers = () => {
-        window.confirm('Do you want to clear all markers?')
-            ? setMarkers([])
-            : null;
+    if (window.confirm('You are about to clear all markers except your user location')) {
+        setMarkers((prev) => prev.length > 0 ? [prev[0]] : []);
     }
+}
+
 
     useEffect(() => {
         const storedMarkers = localStorage.getItem('markers');

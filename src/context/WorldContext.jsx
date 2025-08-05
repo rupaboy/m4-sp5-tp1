@@ -1,12 +1,14 @@
 import { createContext, useState, useMemo, useEffect, useRef } from "react";
 import { UseNotification } from "../hook/UseNotification.jsx";
 import { restCountries } from "../service/restCountries.js";
+import { UseUi } from "../hook/UseUi.jsx";
 
 export const WorldContext = createContext();
 
 export const WorldProvider = ({ children }) => {
 
-    const [isFinderOpen, setIsFinderOpen] = useState(false)
+    const {isFinderOpen, setIsFinderOpen} = UseUi()
+
     // Loaded Data Flag
     const [rawCountries, setRawCountries] = useState(null);
     const [dataLoaded, setDataLoaded] = useState(false);
@@ -223,8 +225,8 @@ export const WorldProvider = ({ children }) => {
         return (rawCountries || [])
             .filter(country =>
                 Array.isArray(country.continents) &&
-                !(country.continents.length === 1 && country.continents[0] === 'Antarctica' &&
-                    country.name.common === 'Antarctica'))
+                !(country.continents.length === 1 && country.continents[0] === 'Antarctica'
+                ))
             //Remove countries within Antartica territory
             .map((country) => ({
                 id: country.cca2,
@@ -310,6 +312,22 @@ export const WorldProvider = ({ children }) => {
 
         isFinderOpen && fetch()
     }, [isFinderOpen])
+
+    const retryFetchCountries = async () => {
+        didFetch.current = true;
+        try {
+            const data = await restCountries();
+            setRawCountries(data);
+            setDataLoaded(true);
+
+            notify({ id: 'loading-countries', notificationTag: 'Countries Reloaded', withProgress: true });
+
+            return { ok: true, data };
+        } catch (error) {
+            console.error(error);
+            return { ok: false, error };
+        }
+    };
 
 
 
@@ -494,6 +512,7 @@ export const WorldProvider = ({ children }) => {
                 continentCountryFinder,
                 languageCountryFinder,
                 continentLanguageCountryFinder,
+                retryFetchCountries,
             }}
         >
             {children}

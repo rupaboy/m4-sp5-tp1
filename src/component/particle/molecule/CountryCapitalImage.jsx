@@ -1,17 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import getCapitalImage from "../../../service/getCapitalImage";
 import { UseNotification } from "../../../hook/UseNotification";
 
-const CountryCapitalImage = ({ capital }) => {
+const CountryCapitalImage = ({ capital, currentCountry }) => {
   const { notify } = UseNotification();
   const [imgUrl, setImgUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const imageCache = useRef({}); //Saves previously loaded img
 
   useEffect(() => {
     if (!capital) return;
 
-    setImgUrl(null);      // Clears Previous Image
-    setIsLoading(true);   // Loading
+    if (imageCache.current[capital] && imgUrl === null) {
+    setImgUrl(imageCache.current[capital]);
+    setIsLoading(false); //Using cache instead.
+    return;
+  }
+    
+    setImgUrl(null);
+    setIsLoading(true);
 
     notify({
       id: `loading-${capital}`,
@@ -23,6 +30,7 @@ const CountryCapitalImage = ({ capital }) => {
     getCapitalImage(capital)
       .then((url) => {
         if (url) {
+          imageCache.current[capital] = url //Saving Cache
           setImgUrl(url);
         } else {
           notify({
@@ -44,7 +52,7 @@ const CountryCapitalImage = ({ capital }) => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [capital]);
+  }, [capital, currentCountry]);
 
 
   if (!isLoading && !imgUrl) return null;
