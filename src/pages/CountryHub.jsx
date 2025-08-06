@@ -9,23 +9,32 @@ import { useNavigate } from 'react-router'
 import { useParams } from 'react-router'
 import { UseWorld } from '../hook/UseWorld'
 import { useEffect } from 'react'
+import { UseNotification } from '../hook/UseNotification'
+import { UseFetchStatus } from '../hook/UseFetchStatus'
 
 const CountryHub = () => {
 
   const { id } = useParams()
+
   const { countries, setCurrentCountry, currentCountry } = UseWorld()
 
   const { markers, addToMarkers, isMarkedAlreadyComparisson, removeFromMarkers } = UseMarkers()
   const { isMenuOpen } = UseUi()
   const { isLoggedIn } = useUser()
+  const { getStatus } = UseFetchStatus()
 
+  const {notify} = UseNotification()
   const navigate = useNavigate()
 
 useEffect(() => {
   if (!id) return;
 
-  if (countries) {
-    const found = countries.find(c => c.cca2 === id);
+  if (getStatus('countries')?.dataLoaded) {
+    
+    notify({
+      id: 'loading-countries', notificationTag: 'Filtering country Id'
+    })
+    const found = countries.find(c => c.id === id);
     setCurrentCountry(found || null);
   } else {
     // fallback: fetch individual
@@ -45,7 +54,6 @@ useEffect(() => {
           latlng: raw.latlng ?? [0, 0],
           timezones: raw.timezones ?? [],
         };
-        console.log('Fetched country:', country); // <-- esto
         setCurrentCountry(country);
       } catch (err) {
         console.error('Single country fetch failed:', err);

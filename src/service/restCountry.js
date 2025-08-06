@@ -10,7 +10,7 @@ const restCountry = async (id) => {
     });
 
     // Always returns an array with a single country
-    return res.data[0];
+    return res.data;
   } catch (error) {
     console.error("Error fetching country by code:", error);
     throw error;

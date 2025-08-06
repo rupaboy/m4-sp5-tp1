@@ -15,23 +15,23 @@ import RouterDom from './routes/RouterDom.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <UserProvider>
-        <FetchStatusProvider>
-          <ThemeProvider>
-            <UiProvider>
-              <NotificationProvider>
-                <MarkersProvider>
-                  <WorldProvider>
+      <NotificationProvider>
+        <UserProvider>
+          <FetchStatusProvider>
+            <WorldProvider>
+              <ThemeProvider>
+                <UiProvider>
+                  <MarkersProvider>
 
                     <RouterDom />
 
-                  </WorldProvider>
-                </MarkersProvider>
-              </NotificationProvider>
-            </UiProvider>
-          </ThemeProvider>
-        </FetchStatusProvider>
-      </UserProvider>
+                  </MarkersProvider>
+                </UiProvider>
+              </ThemeProvider>
+            </WorldProvider>
+          </FetchStatusProvider>
+        </UserProvider>
+      </NotificationProvider>
     </BrowserRouter>
 
   </StrictMode>,

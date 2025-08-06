@@ -304,33 +304,7 @@ export const WorldProvider = ({ children }) => {
                 notificationTag: 'Loading countries...'
             });
         }
-
         // FETCH API REST COUNTRIES ON CONTEXT LOAD
-        {/* const fetchData = async () => {
-            if (didFetch.current || rawCountries) return
-            didFetch.current = true
-            try {
-                // Fixed Id notification
-                notify({ id: 'loading-countries', notificationTag: 'Loading countries' })
-
-                const data = await restCountries()
-                setRawCountries(data)
-                setDataLoaded(true)
-                setFetchFailed(false)
-                
-                // Replaces previous notification (same Id)
-                notify({ id: 'loading-countries', notificationTag: 'Countries Loaded', withProgress: false })
-            } catch (error) {
-                setFetchFailed(true)
-                setDataLoaded(false)
-
-                notify({ id: 'loading-countries', notificationTag: `Error loading Countries: ${error}`, withProgress: false })
-            } finally {
-                didFetch.current = true;
-            }
-            if (isFinderOpen) fetchData()
-        }*/}
-
     }, [location.pathname])
 
     const retryFetchCountries = async () => {

@@ -29,7 +29,7 @@ const RouterDom = () => {
         <Route path='/finder/countries' element={<CountryFinder />} />
         <Route path='/finder/languages' element={<CountryFinder />} />
         <Route path='/finder/continents-languages' element={<CountryFinder />} />
-        <Route path='/countries/:name' element={<CountryHub />} />
+        <Route path='/countries/:id' element={<CountryHub />} />
 
         {/* Users */}
         <Route path='/' element={<Dashboard />} />
