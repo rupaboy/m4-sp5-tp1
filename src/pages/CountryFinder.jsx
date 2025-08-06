@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import PlanetEarth from "../component/particle/PlanetEarth";
 import { UseNotification } from "../hook/UseNotification";
+import { useNavigate } from "react-router";
 import { UseWorld } from '../hook/UseWorld';
 import { useUser } from "../hook/UseUser";
 import { UseUi } from "../hook/UseUi";
-import MenuFinder from "./particle/molecule/MenuFinder";
-import Bubble from "./particle/molecule/Bubble";
-import Table from "./particle/molecule/Table";
-import SearchBar from "./particle/molecule/SearchBar";
-import NoCountries from "./particle/molecule/NoCountries";
+import Loading from "../component/particle/molecule/Loading";
+import MenuFinder from "../component/particle/molecule/MenuFinder";
+import Bubble from "../component/particle/molecule/Bubble";
+import Table from "../component/particle/molecule/Table";
+import SearchBar from "../component/particle/molecule/SearchBar";
+import NoCountries from "../component/particle/molecule/NoCountries";
 
 const CountryFinder = ({ toCountryHub }) => {
 
@@ -38,12 +40,16 @@ const CountryFinder = ({ toCountryHub }) => {
     hoveredCountries,
     getFillClass,
     retryFetchCountries,
+    isLoading,
+    hasError,
   } = UseWorld()
+
+  const navigate = useNavigate()
 
   const [isSearchModeSet, setIsSearchModeSet] = useState(false)
 
   const { isLoggedIn } = useUser()
-  const { isMenuOpen, setIsMenuOpen, setIsFinderOpen } = UseUi()
+  const { isMenuOpen, setIsMenuOpen } = UseUi()
   const { notify } = UseNotification()
 
   useEffect(() => {
@@ -63,11 +69,13 @@ const CountryFinder = ({ toCountryHub }) => {
 
     <main className={`${isMenuOpen ? 'hidden' : ''}`}>
       
-      {countries.length === 0 &&
+      {isLoading &&
+      <Loading/>
+      }
+
+      {countries.length === 0 && hasError && !isLoading &&
         <NoCountries
         retryFetchCountries={retryFetchCountries}
-        setIsFinderOpen={setIsFinderOpen}
-        toCountryHub={toCountryHub}
         setIsMenuOpen={setIsMenuOpen}
         isLoggedIn={isLoggedIn}
         />
@@ -76,16 +84,11 @@ const CountryFinder = ({ toCountryHub }) => {
       {!isSearchModeSet && countries.length !== 0 &&
         <div className='w-screen flex flex-col items-center justify-center'>
           <h4 className="text-center text-xs mb-4">Name Search</h4>
-          <SearchBar
-            toCountryHub={toCountryHub}
-            setIsFinderOpen={setIsFinderOpen}
-          />
+          <SearchBar/>
 
           <h4 className="text-center text-xs mb-4">Country Finder</h4>
           <MenuFinder
-            setIsFinderOpen={setIsFinderOpen}
             setIsMenuOpen={setIsMenuOpen}
-            toCountryHub={toCountryHub}
             setIsSearchModeSet={setIsSearchModeSet}
           />
         </div>
@@ -386,8 +389,7 @@ const CountryFinder = ({ toCountryHub }) => {
                   name={country.name}
                   flag={country.flag}
                   action={() => {
-                    toCountryHub(country)
-                    setIsFinderOpen(false)
+                    navigate(`/countries/${country.id}`)
                   }}
                   hover={() => {
                     countryHover(country.id)
@@ -416,8 +418,7 @@ const CountryFinder = ({ toCountryHub }) => {
                   name={country.name}
                   flag={country.flag}
                   action={() => {
-                    toCountryHub(country)
-                    setIsFinderOpen(false)
+                    navigate(`/countries/${country.id}`)
                   }}
                   hover={() => {
                     if (stages[0].name === 'Continent') {

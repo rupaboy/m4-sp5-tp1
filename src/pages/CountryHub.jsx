@@ -1,32 +1,85 @@
-import Table from '../component/particle/molecule/Table'
+import CountryCapitalImage from '../component/particle/molecule/CountryCapitalImage'
+import restCountry from '../service/restCountry'
 import Button from '../component/particle/molecule/Button'
+import Table from '../component/particle/molecule/Table'
 import { UseMarkers } from '../hook/UseMarkers'
 import { UseUi } from '../hook/UseUi'
-import CountryCapitalImage from './particle/molecule/CountryCapitalImage'
 import { useUser } from '../hook/UseUser'
+import { useNavigate } from 'react-router'
+import { useParams } from 'react-router'
+import { UseWorld } from '../hook/UseWorld'
+import { useEffect } from 'react'
 
+const CountryHub = () => {
 
-const CountryHub = ({ currentCountry = null }) => {
+  const { id } = useParams()
+  const { countries, setCurrentCountry, currentCountry } = UseWorld()
 
   const { markers, addToMarkers, isMarkedAlreadyComparisson, removeFromMarkers } = UseMarkers()
-  const { isFinderOpen, isMenuOpen, isDashBoardOpen, setIsDashBoardOpen, setIsHubOpen } = UseUi()
+  const { isMenuOpen } = UseUi()
   const { isLoggedIn } = useUser()
+
+  const navigate = useNavigate()
+
+useEffect(() => {
+  if (!id) return;
+
+  if (countries) {
+    const found = countries.find(c => c.cca2 === id);
+    setCurrentCountry(found || null);
+  } else {
+    // fallback: fetch individual
+    const fetchSingle = async () => {
+      try {
+        const raw = await restCountry(id);
+
+        // adaptamos igual que en context o donde sea necesario
+        const country = {
+          id: raw.cca2,
+          cca2: raw.cca2,
+          name: raw.name.common,
+          capitals: raw.capital ?? [],
+          continents: raw.continents ?? [],
+          area: raw.area ?? 0,
+          population: raw.population ?? 0,
+          latlng: raw.latlng ?? [0, 0],
+          timezones: raw.timezones ?? [],
+        };
+        console.log('Fetched country:', country); // <-- esto
+        setCurrentCountry(country);
+      } catch (err) {
+        console.error('Single country fetch failed:', err);
+      }
+    };
+
+    fetchSingle();
+  }
+}, [id, countries]);
+
+
+
+  if (!currentCountry) {
+    return (
+      <main className="text-center h-screen w-screen flex items-center justify-center">
+        <p className="text-lg">Loading country...</p>
+      </main>
+    )
+  }
 
   return (
 
-    <main className={`${isMenuOpen || isFinderOpen || isDashBoardOpen ? 'hidden' : ''}
+    <main className={`${isMenuOpen ? 'hidden' : ''}
     text-center h-screen w-screen overflow-y-scroll`}>
 
-        <Button
-          ratio={'z-100 mx-auto w-8 absolute left-16 sm:left-28 mt-6'}
-          title={`Go to DashBoard`}
-          buttonText={<i className='bi-house' />}
-          buttonName={`Home`}
-          action={() => {
-            setIsDashBoardOpen(true)
-            setIsHubOpen(true)
-          }}
-        />
+      <Button
+        ratio={'z-100 mx-auto w-8 absolute left-16 sm:left-28 mt-6'}
+        title={`Go to DashBoard`}
+        buttonText={<i className='bi-house' />}
+        buttonName={`Home`}
+        action={() => {
+          navigate(`/countries/${currentCountry.id}`)
+        }}
+      />
       <div className="items-center justify-center h-full grid sm:flex flex-wrap gap-2">
         <div className='fixed top-0 sm:left-0
         pt-20 sm:pt-0 w-screen sm:h-screen text-nowrap flex-wrap sm:w-20
@@ -36,7 +89,7 @@ const CountryHub = ({ currentCountry = null }) => {
         text-2xl flex items-center justify-center'>
           {/* Nombre de País con guarda responsiva */}
           <h2 className='leading-12 font-extrabold sm:rotate-[-90deg] text-3xl'>{currentCountry.name}</h2>
-          </div>
+        </div>
 
         {/* Datos de API Rest Countries */}
         <aside className="space-y-2 mx-auto mt-32 sm:mt-0 sm:ml-32">
@@ -60,7 +113,7 @@ const CountryHub = ({ currentCountry = null }) => {
               />}
 
             {currentCountry !== null && isLoggedIn && currentCountry.id !== markers[0]?.id && isMarkedAlreadyComparisson(currentCountry) &&
-            //Non removable (user location)
+              //Non removable (user location)
               <Button //Revove From Markers
                 buttonText={<i className="bi bi-star-fill" />}
                 buttonName="Unmark"
@@ -70,7 +123,7 @@ const CountryHub = ({ currentCountry = null }) => {
               />}
 
             {currentCountry !== null && isLoggedIn &&
-            currentCountry.id === markers[0]?.id && //Non removable (user location)
+              currentCountry.id === markers[0]?.id && //Non removable (user location)
               <Button //Revove From Markers
                 buttonText={<i className="bi bi-star-fill" />}
                 buttonName="Default"
@@ -95,8 +148,8 @@ const CountryHub = ({ currentCountry = null }) => {
           {
             currentCountry?.capitals.map((capital, i) => (
               <CountryCapitalImage
-              currentCountry={currentCountry}
-              capital={capital} key={i} />
+                currentCountry={currentCountry}
+                capital={capital} key={i} />
             ))
           }
         </aside>

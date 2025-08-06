@@ -1,18 +1,20 @@
 import { useState } from "react"
 import { UseMarkers } from "../hook/UseMarkers"
-import MarkersList from "./MarkersList"
-import Button from "./particle/molecule/Button"
+import MarkersList from "../component/MarkersList"
+import Button from "../component/particle/molecule/Button"
 import { UseUi } from "../hook/UseUi"
+import { useUser } from "../hook/UseUser"
 
 
 const Dashboard = ({ currentCountry, toCountryHub }) => {
 
   const [showMarkers, setShowMarkers] = useState(true)
+  const { isLoggedIn } = useUser()
   const { markers } = UseMarkers()
-  const { isFinderOpen, isMenuOpen, isHubOpen, setIsHubOpen, setIsDashBoardOpen, isDashBoardOpen } = UseUi()
+  const { isFinderOpen, isMenuOpen } = UseUi()
 
   return (
-    <main className={`${isMenuOpen || isFinderOpen ? 'hidden' : ''}`}>
+    <main className={`${isMenuOpen || isFinderOpen || !isLoggedIn ? 'hidden' : ''}`}>
 
       <div className="absolute left-4 top-1/2 translate-y-[-2em]">
         <Button

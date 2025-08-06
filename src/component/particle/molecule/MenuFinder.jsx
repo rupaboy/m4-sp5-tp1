@@ -1,7 +1,7 @@
 import { UseWorld } from '../../../hook/UseWorld';
 import Button from './Button';
 
-const MenuFinder = ({ setIsMenuOpen, toCountryHub, setIsSearchModeSet }) => {
+const MenuFinder = ({ setIsMenuOpen, setIsSearchModeSet }) => {
 
   const {
     resetFilters,
@@ -34,7 +34,6 @@ const MenuFinder = ({ setIsMenuOpen, toCountryHub, setIsSearchModeSet }) => {
         buttonName={'By Continent/Language'}
         action={() => {
           resetFilters()
-          toCountryHub(null)
           continentLanguageCountryFinder()
           setIsMenuOpen(false)
           setIsSearchModeSet(true)
@@ -48,7 +47,6 @@ const MenuFinder = ({ setIsMenuOpen, toCountryHub, setIsSearchModeSet }) => {
         buttonName={'By Language'}
         action={() => {
           resetFilters()
-          toCountryHub(null)
           languageCountryFinder()
           setIsMenuOpen(false)
           setIsSearchModeSet(true)
@@ -62,7 +60,6 @@ const MenuFinder = ({ setIsMenuOpen, toCountryHub, setIsSearchModeSet }) => {
         buttonName={'List All'}
         action={() => {
           resetFilters()
-          toCountryHub(null)
           countryFinder()
           setIsMenuOpen(false)
           setIsSearchModeSet(true)

@@ -6,12 +6,9 @@ const UserContext = createContext(); //Contexto de Temas
 export const UserProvider = ({ children }) => {
 
     //Estado para Tema Oscuro
-    const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-        //Estado inicial desde LocalStorage
-        const savedUser = localStorage.getItem('User')
-        return savedUser;
-    });
+    const [hasStoragedUser, setHasStoragedUser] = useState(false)
 
     const logInUser = () => {
         setIsLoggedIn(true);
@@ -23,7 +20,7 @@ export const UserProvider = ({ children }) => {
 
 
     return (
-        <UserContext.Provider value={{ isLoggedIn, logInUser, logOutUser }}>
+        <UserContext.Provider value={{ isLoggedIn, logInUser, logOutUser, hasStoragedUser }}>
             {children}
         </UserContext.Provider>
 

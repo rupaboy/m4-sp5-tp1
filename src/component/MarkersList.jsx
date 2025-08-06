@@ -2,10 +2,12 @@ import Marker from "./particle/molecule/Marker"
 import Button from "./particle/molecule/Button"
 import { UseUi } from "../hook/UseUi"
 import { UseMarkers } from "../hook/UseMarkers"
+import { useNavigate } from "react-router"
 
-const MarkersList = ({ toCountryHub }) => {
+const MarkersList = () => {
 
-  const { setIsFinderOpen, setIsMenuOpen, setIsDashBoardOpen } = UseUi()
+  const navigate = useNavigate()
+  const { setIsMenuOpen } = UseUi()
   const { markers, clearMarkers } = UseMarkers()
 
   return (
@@ -27,10 +29,7 @@ const MarkersList = ({ toCountryHub }) => {
               key={marker.id}
               name={marker.name}
               action={() => {
-                toCountryHub(marker)
-                setIsMenuOpen(false)
-                setIsFinderOpen(false)
-                setIsDashBoardOpen(false)
+                navigate(`/countries/${marker.id}`)
               }}
               id={marker.id}
               flag={marker.flag}

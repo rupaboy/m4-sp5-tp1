@@ -1,17 +1,23 @@
 import { createContext, useState, useMemo, useEffect, useRef } from "react";
+import { useLocation } from "react-router";
 import { UseNotification } from "../hook/UseNotification.jsx";
+import { UseFetchStatus } from "../hook/UseFetchStatus.jsx";
 import { restCountries } from "../service/restCountries.js";
-import { UseUi } from "../hook/UseUi.jsx";
 
 export const WorldContext = createContext();
 
 export const WorldProvider = ({ children }) => {
 
-    const {isFinderOpen, setIsFinderOpen} = UseUi()
+    // Fetch Status Context
+    const { runFetch, getStatus } = UseFetchStatus()
+    const { didFetch } = getStatus('preloadedFlags')
+    const { isLoading, hasError, dataLoaded } = getStatus('countries');
+
+    // Current Country for CountryHub.jsx
+    const [currentCountry, setCurrentCountry] = useState(null)
 
     // Loaded Data Flag
     const [rawCountries, setRawCountries] = useState(null);
-    const [dataLoaded, setDataLoaded] = useState(false);
 
     //Search Function
     const [searchResults, setSearchResults] = useState([]);
@@ -103,14 +109,12 @@ export const WorldProvider = ({ children }) => {
         ]);
     };
 
+    //Se ejecuta solamente en /finder
+    const location = useLocation()
+    const isFinderOpen = location.pathname.startsWith('/finder')
+
     //Notification Tool
     const { notify } = UseNotification()
-
-    //AntiStrictMode
-    const didFetch = useRef(false)
-
-    const hasFlagPreloadedRef = useRef(false);
-
 
     const resetFilters = () => {
         if (rawCountries !== null) {
@@ -268,18 +272,19 @@ export const WorldProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        if (rawCountries && !dataLoaded) {
+        if (rawCountries) {
             setSelectedCountries(countries);
-            setDataLoaded(true);
         }
     }, [rawCountries, countries]);
 
     useEffect(() => { //Flag Precharge
-        if (!countries?.length) return;
+        if (!countries?.length || didFetch) return;
 
-        countries.forEach((country) => {
-            const img = new Image();
-            img.src = country.flag;
+        runFetch('preloadedFlags', async () => {
+            countries.forEach((country) => {
+                const img = new Image();
+                img.src = country.flag;
+            });
         });
 
         notify({
@@ -287,13 +292,21 @@ export const WorldProvider = ({ children }) => {
             notificationTag: 'Pre-loading flags of the world.',
             withProgress: false,
             duration: 5000
-        })
+        });
+    }, [countries]);
 
-        hasFlagPreloadedRef.current = true;
-    }, [dataLoaded]);
+    useEffect(() => {
+        if (isFinderOpen && !dataLoaded) {
+            runFetch('countries', restCountries, setRawCountries)
 
-    useEffect(() => { // FETCH API REST COUNTRIES ON CONTEXT LOAD
-        const fetch = async () => {
+            notify({
+                id: 'loading-countries',
+                notificationTag: 'Loading countries...'
+            });
+        }
+
+        // FETCH API REST COUNTRIES ON CONTEXT LOAD
+        {/* const fetchData = async () => {
             if (didFetch.current || rawCountries) return
             didFetch.current = true
             try {
@@ -302,34 +315,36 @@ export const WorldProvider = ({ children }) => {
 
                 const data = await restCountries()
                 setRawCountries(data)
-
+                setDataLoaded(true)
+                setFetchFailed(false)
+                
                 // Replaces previous notification (same Id)
                 notify({ id: 'loading-countries', notificationTag: 'Countries Loaded', withProgress: false })
             } catch (error) {
-                console.log(error)
-            }
-        }
+                setFetchFailed(true)
+                setDataLoaded(false)
 
-        isFinderOpen && fetch()
-    }, [isFinderOpen])
+                notify({ id: 'loading-countries', notificationTag: `Error loading Countries: ${error}`, withProgress: false })
+            } finally {
+                didFetch.current = true;
+            }
+            if (isFinderOpen) fetchData()
+        }*/}
+
+    }, [location.pathname])
 
     const retryFetchCountries = async () => {
-        didFetch.current = true;
-        try {
-            const data = await restCountries();
-            setRawCountries(data);
-            setDataLoaded(true);
+        const result = await runFetch('countries', restCountries, setRawCountries);
 
-            notify({ id: 'loading-countries', notificationTag: 'Countries Reloaded', withProgress: true });
-
-            return { ok: true, data };
-        } catch (error) {
-            console.error(error);
-            return { ok: false, error };
+        if (result) {
+            notify({
+                id: 'loading-countries', notificationTag: 'Countries Reloaded'
+            })
+            return { ok: true, data: result };
+        } else {
+            return { ok: false, error: 'Could not reload countries' }
         }
     };
-
-
 
     const extractLanguages = (selectedCountries = []) => {
         // Mapping array of arrays
@@ -470,7 +485,6 @@ export const WorldProvider = ({ children }) => {
             if (selectedCountries?.some((c) => c.id === countryId)) { return 'fill-slate-500' }
             else { return 'fill-slate-700' }
         }
-
     }
 
 
@@ -481,7 +495,6 @@ export const WorldProvider = ({ children }) => {
                 searchResults,
                 countries,
                 stages,
-                setIsFinderOpen,
                 isFinderOpen,
                 uiStage,
                 resetFilters,
@@ -513,6 +526,10 @@ export const WorldProvider = ({ children }) => {
                 languageCountryFinder,
                 continentLanguageCountryFinder,
                 retryFetchCountries,
+                isLoading,
+                hasError,
+                currentCountry,
+                setCurrentCountry
             }}
         >
             {children}
