@@ -1,11 +1,12 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import getCapitalImage from "../../../service/getCapitalImage";
-import { UseNotification } from "../../../hook/UseNotification";
-import { FetchStatusContext } from "../../../context/FetchStatusContext";
+import { useEffect, useRef, useState } from "react";
+import getCapitalImage from "../service/wikipedia/getCapitalImage";
+import Loading from "./particle/molecule/Loading";
+import { UseNotification } from "../hook/UseNotification";
+import { UseFetchStatus } from "../hook/UseFetchStatus";
 
-const CountryCapitalImage = ({ capital, currentCountry }) => {
+const CountryCapitalImage = ({ capital, id }) => {
   const { notify } = UseNotification();
-  const { runFetch, getStatus } = useContext(FetchStatusContext);
+  const { runFetch, getStatus } = UseFetchStatus()
 
   const [imgUrl, setImgUrl] = useState(null);
   const imageCache = useRef({});
@@ -19,19 +20,17 @@ const CountryCapitalImage = ({ capital, currentCountry }) => {
       setImgUrl(imageCache.current[capital]);
       return;
     }
-
-    // evitar fetch repetido si ya lo hiciste (aunque no haya imagen)
-    if (didFetch && (dataLoaded || fetchFailed)) return;
-
+    
     setImgUrl(null);
 
     runFetch(
       capital,
       () => {
+        if (!didFetch)
         notify({
           id: `${capital}`,
           notificationTag: `Fetching image for ${capital}...`,
-          duration: 5000,
+          duration: 3000,
         });
         return getCapitalImage(capital);
       },
@@ -46,6 +45,7 @@ const CountryCapitalImage = ({ capital, currentCountry }) => {
             duration: 2000,
             withProgress: false,
           });
+          setImgUrl(null)
         }
       }
     ).catch((err) => {
@@ -56,16 +56,14 @@ const CountryCapitalImage = ({ capital, currentCountry }) => {
         withProgress: false,
       });
     });
-  }, [capital, currentCountry]);
-
-  if (!isLoading && !imgUrl) return null;
+  }, [capital, id, isLoading, didFetch, imgUrl]);
 
   return (
     <div className="country-image-container w-full">
-      {imgUrl && <img src={imgUrl} alt={`Image of ${capital}`} className="rounded" />}
+      {dataLoaded && !isLoading && imgUrl !== null && didFetch && <img src={imgUrl} alt={`Image of ${capital}`} className="rounded" />}
       {!isLoading && imgUrl && <h2 className="text-sm my-2">{capital}</h2>}
-      {isLoading && !imgUrl && <h2 className="text-sm my-2">Loading...</h2>}
-      {!isLoading && !imgUrl && <p className="text-sm text-gray-500">No image Available</p>}
+      {isLoading && <Loading/>}
+      {fetchFailed && <p className="text-sm text-gray-500">No image Available</p>}
     </div>
   );
 };

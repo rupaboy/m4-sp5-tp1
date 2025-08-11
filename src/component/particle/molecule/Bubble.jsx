@@ -7,8 +7,9 @@ const Bubble = ({ name, action, hover, unhover, stages = 'Country', uiStage, fla
             className={`
                 dark:hover:bg-slate-500/30 dark:bg-slate-700/30 dark:hover:text-amber-500
                 hover:bg-slate-100/40 bg-slate-200/25 hover:text-amber-800
+                outline-slate-400/40 dark:outline-slate-950/40
                 items-center grid my-auto py-1 min-h-9 select-none cursor-pointer
-                min-w-0 w-[11em] h-[3em] rounded-sm px-2
+                min-w-0 w-[11em] h-[3em] rounded-sm px-2 outline
                 ${stages[uiStage]?.name === 'Language' && 'justify-center'}
                 ${stages[uiStage]?.name === 'Country' && 'justify-start'}
                 ${stages[uiStage]?.name === 'Continent' && 'justify-center'}

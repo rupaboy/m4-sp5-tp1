@@ -25,10 +25,12 @@ const RouterDom = () => {
       <Route path='/' element={<Layout />}>
         {/* Countries */}
         <Route path='/finder' element={<CountryFinder />} />
+        {/*
         <Route path='/finder/continents' element={<CountryFinder />} />
         <Route path='/finder/countries' element={<CountryFinder />} />
         <Route path='/finder/languages' element={<CountryFinder />} />
         <Route path='/finder/continents-languages' element={<CountryFinder />} />
+        */}
         <Route path='/countries/:id' element={<CountryHub />} />
 
         {/* Users */}
@@ -36,7 +38,7 @@ const RouterDom = () => {
         <Route path='/user/login' element={<SignInForm />} />
         <Route path='/user/register' element={<SignUpForm />} />
         <Route path='/user/id/:id' element={<UserPanel />} />
-        <Route path='/user/edit' element={<UserEditPanel />} />
+        <Route path='/user/edit/:id' element={<UserEditPanel />} />
       </Route>
     </Routes>
   )

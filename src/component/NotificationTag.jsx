@@ -22,7 +22,7 @@ const NotificationTag = ({
   }, [show, duration, progress === null])
 
   // Offset vertical en px para apilar las notificaciones (ejemplo: 60px por notificación)
-  const verticalOffset = index * 60
+  const verticalOffset = index * 35
 
   return (
     <AnimatePresence>
@@ -32,16 +32,16 @@ const NotificationTag = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
-          style={{ top: 10 + verticalOffset }} // mover hacia abajo según índice
+          style={{ bottom: 20 + verticalOffset }} // mover hacia abajo según índice
           className={`${ratio}
             fixed left-1/2 -translate-x-1/2 z-50 grid items-center
             dark:text-slate-300/78 dark:bg-slate-900/70
             text-slate-800/78 bg-slate-200/70
             py-1 mt-3 select-none cursor-pointer
-            min-w-0 max-w-[86vw] min-h-[3em] rounded-sm px-2 text-center
+            min-w-0 max-w-[86vw] min-h-[2em] rounded-sm px-2 text-center
           `}
         >
-          <span className="line-clamp-3">{notificationTag}</span>
+          <span className="line-clamp-3 text-sm">{notificationTag}</span>
 
           {withProgress && (
             <motion.div

@@ -1,8 +1,8 @@
-import { createContext, useState, useMemo, useEffect, useRef } from "react";
+import { createContext, useState, useMemo, useEffect } from "react";
 import { useLocation } from "react-router";
 import { UseNotification } from "../hook/UseNotification.jsx";
 import { UseFetchStatus } from "../hook/UseFetchStatus.jsx";
-import { restCountries } from "../service/restCountries.js";
+import { restCountries } from "../service/restCountries/restCountries.js";
 
 export const WorldContext = createContext();
 
@@ -264,7 +264,7 @@ export const WorldProvider = ({ children }) => {
 
     //Search Function
     const searchCountries = (query) => {
-        if (query.length < 3) return setSearchResults([]);
+        if (query.length < 2) return setSearchResults([]);
         const matches = countries.filter((c) =>
             c.name.toLowerCase().includes(query.toLowerCase())
         );
@@ -278,7 +278,7 @@ export const WorldProvider = ({ children }) => {
     }, [rawCountries, countries]);
 
     useEffect(() => { //Flag Precharge
-        if (!countries?.length || didFetch) return;
+        if (!countries?.length || didFetch || !location.pathname.startsWith('/finder')) return;
 
         runFetch('preloadedFlags', async () => {
             countries.forEach((country) => {
@@ -287,6 +287,7 @@ export const WorldProvider = ({ children }) => {
             });
         });
 
+        if (location.pathname.startsWith('/finder'))
         notify({
             id: 'cached-flags',
             notificationTag: 'Pre-loading flags of the world.',
@@ -312,11 +313,11 @@ export const WorldProvider = ({ children }) => {
 
         if (result) {
             notify({
-                id: 'loading-countries', notificationTag: 'Countries Reloaded'
+                id: 'loading-countries', notificationTag: 'Countries Loaded'
             })
             return { ok: true, data: result };
         } else {
-            return { ok: false, error: 'Could not reload countries' }
+            return { ok: false, error: 'Could not load countries' }
         }
     };
 

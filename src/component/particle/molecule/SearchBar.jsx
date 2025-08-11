@@ -2,12 +2,13 @@ import Button from "./Button"
 import Marker from "./Marker"
 import { useEffect, useState } from "react"
 import { UseWorld } from "../../../hook/UseWorld"
-
+import { useNavigate } from "react-router"
 
 const SearchBar = () => {
 
     const [ query, setQuery ] = useState('');
     const { searchCountries, searchResults } = UseWorld()
+    const navigate = useNavigate()
 
     const handleChange = (e) => {
         const newQuery = e.target.value;
@@ -35,7 +36,7 @@ const SearchBar = () => {
                     title={'Search Country Name'}
                     action={() => {
                         if (searchResults.length === 1){
-                            navigate(`/countries/${country.id}`)
+                            navigate(`/countries/${searchResults[0].id}`)
                         }
                     }}
                 />
@@ -53,7 +54,7 @@ const SearchBar = () => {
                     key={result.id}
                     name={result.name}
                     action={() => {
-                      navigate(`/countries/${country.id}`)
+                      navigate(`/countries/${result.id}`)
                     }}
                     id={result.id}
                     flag={result.flag}

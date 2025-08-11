@@ -3,7 +3,7 @@ import PlanetEarth from "../component/particle/PlanetEarth";
 import { UseNotification } from "../hook/UseNotification";
 import { useNavigate } from "react-router";
 import { UseWorld } from '../hook/UseWorld';
-import { useUser } from "../hook/UseUser";
+import { UseUser } from "../hook/UseUser";
 import { UseUi } from "../hook/UseUi";
 import Loading from "../component/particle/molecule/Loading";
 import MenuFinder from "../component/particle/molecule/MenuFinder";
@@ -11,6 +11,7 @@ import Bubble from "../component/particle/molecule/Bubble";
 import Table from "../component/particle/molecule/Table";
 import SearchBar from "../component/particle/molecule/SearchBar";
 import NoCountries from "../component/particle/molecule/NoCountries";
+import Logo from '../component/particle/Logo'
 
 const CountryFinder = ({ toCountryHub }) => {
 
@@ -48,7 +49,7 @@ const CountryFinder = ({ toCountryHub }) => {
 
   const [isSearchModeSet, setIsSearchModeSet] = useState(false)
 
-  const { isLoggedIn } = useUser()
+  const { isLoggedIn } = UseUser()
   const { isMenuOpen, setIsMenuOpen } = UseUi()
   const { notify } = UseNotification()
 
@@ -68,27 +69,33 @@ const CountryFinder = ({ toCountryHub }) => {
   return (
 
     <main className={`${isMenuOpen ? 'hidden' : ''}`}>
-      
+
+      { !isSearchModeSet &&
+      <div className='top-7 w-screen flex items-center justify-center fixed'>
+        <Logo
+        isIsoOnly={true}
+        />
+      </div>}
+
       {isLoading &&
-      <Loading/>
+        <Loading />
       }
 
       {countries.length === 0 && hasError && !isLoading &&
         <NoCountries
-        retryFetchCountries={retryFetchCountries}
-        setIsMenuOpen={setIsMenuOpen}
-        isLoggedIn={isLoggedIn}
+          retryFetchCountries={retryFetchCountries}
+          setIsMenuOpen={setIsMenuOpen}
+          isLoggedIn={isLoggedIn}
         />
       }
 
       {!isSearchModeSet && countries.length !== 0 &&
         <div className='w-screen flex flex-col items-center justify-center'>
           <h4 className="text-center text-xs mb-4">Name Search</h4>
-          <SearchBar/>
+          <SearchBar />
 
           <h4 className="text-center text-xs mb-4">Country Finder</h4>
           <MenuFinder
-            setIsMenuOpen={setIsMenuOpen}
             setIsSearchModeSet={setIsSearchModeSet}
           />
         </div>
@@ -148,12 +155,18 @@ const CountryFinder = ({ toCountryHub }) => {
               return ( //Languages descriptions 
                 <Table
                   title={languageUiName}
-                  header1={'Countries'}
-                  footer1={hoveredLanguages.length}
-                  header2={'Speak'}
+                  header1={hoveredLanguages.length !== 1 ? 'Countries' : ''}
+                  footer1={hoveredLanguages.length !== 1 ? hoveredLanguages.length : hoveredLanguages[0].name}
+                  header2={hoveredLanguages.length !== 1 ? 'Speak' : 'Speaks'}
                   footer2={languageUiName}
-                  header3={`${hoveredLanguages.length === 1 ? 'Population' : 'Total Population'}`}
-                  footer3={extractPopulation(hoveredLanguages).toLocaleString('de-DE')}
+                  header3={'in'}
+                  footer3={
+                    ((continents =>
+                      continents.length === 1
+                        ? `${continents[0]}`
+                        : `${continents.length} continents`
+                    )([...new Set(hoveredLanguages.map(c => c.continents).flat())]))
+                  }
                 />
               )
             }
@@ -300,7 +313,7 @@ const CountryFinder = ({ toCountryHub }) => {
     h-screen my-auto font-black overflow-y-scroll`}>
           <div
             className={`pt-6 pb-6
-            flex flex-wrap gap-0.5 h-auto text-nowrap my-auto
+            flex flex-wrap h-auto text-nowrap my-auto
             overflow-y-scroll overflow-x-hidden items-center justify-center
           `}>
 

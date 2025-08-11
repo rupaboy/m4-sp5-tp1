@@ -1,10 +1,13 @@
-import CountryCapitalImage from '../component/particle/molecule/CountryCapitalImage'
-import restCountry from '../service/restCountry'
+import CountryCapitalImage from '../component/CountryCapitalImage'
+import restCountry from '../service/restCountries/restCountry'
 import Button from '../component/particle/molecule/Button'
+import PopUpImage from '../component/particle/molecule/PopUpImage'
 import Table from '../component/particle/molecule/Table'
+import Logo from '../component/particle/Logo'
+import Loading from '../component/particle/molecule/Loading'
 import { UseMarkers } from '../hook/UseMarkers'
 import { UseUi } from '../hook/UseUi'
-import { useUser } from '../hook/UseUser'
+import { UseUser } from '../hook/UseUser'
 import { useNavigate } from 'react-router'
 import { useParams } from 'react-router'
 import { UseWorld } from '../hook/UseWorld'
@@ -15,92 +18,104 @@ import { UseFetchStatus } from '../hook/UseFetchStatus'
 const CountryHub = () => {
 
   const { id } = useParams()
-
   const { countries, setCurrentCountry, currentCountry } = UseWorld()
 
   const { markers, addToMarkers, isMarkedAlreadyComparisson, removeFromMarkers } = UseMarkers()
-  const { isMenuOpen } = UseUi()
-  const { isLoggedIn } = useUser()
+  const { isMenuOpen, showPopUp, setShowPopUp } = UseUi()
+  const { isLoggedIn } = UseUser()
   const { getStatus } = UseFetchStatus()
 
-  const {notify} = UseNotification()
+  const { notify } = UseNotification()
   const navigate = useNavigate()
 
-useEffect(() => {
-  if (!id) return;
+  useEffect(() => {
+    if (!id) return;
 
-  if (getStatus('countries')?.dataLoaded) {
-    
-    notify({
-      id: 'loading-countries', notificationTag: 'Filtering country Id'
-    })
-    const found = countries.find(c => c.id === id);
-    setCurrentCountry(found || null);
-  } else {
-    // fallback: fetch individual
-    const fetchSingle = async () => {
-      try {
-        const raw = await restCountry(id);
+    if (getStatus('countries')?.dataLoaded) {
 
-        // adaptamos igual que en context o donde sea necesario
-        const country = {
-          id: raw.cca2,
-          cca2: raw.cca2,
-          name: raw.name.common,
-          capitals: raw.capital ?? [],
-          continents: raw.continents ?? [],
-          area: raw.area ?? 0,
-          population: raw.population ?? 0,
-          latlng: raw.latlng ?? [0, 0],
-          timezones: raw.timezones ?? [],
-        };
-        setCurrentCountry(country);
-      } catch (err) {
-        console.error('Single country fetch failed:', err);
-      }
-    };
+      notify({
+        id: 'loading-countries', notificationTag: 'Filtering country Id'
+      })
+      const found = countries.find(c => c.id === id);
+      setCurrentCountry(found || null);
+    } else {
+      // fallback: fetch individual
+      const fetchSingle = async () => {
+        try {
+          const raw = await restCountry(id);
 
-    fetchSingle();
-  }
-}, [id, countries]);
+          // adaptamos igual que en context o donde sea necesario
+          const country = {
+            id: raw.cca2,
+            cca2: raw.cca2,
+            name: raw.name.common,
+            flag: raw.flags.svg,
+            capitals: raw.capital ?? [],
+            continents: raw.continents ?? [],
+            area: raw.area ?? 0,
+            population: raw.population ?? 0,
+            latlng: raw.latlng ?? [0, 0],
+            timezones: raw.timezones ?? [],
+          };
+          setCurrentCountry(country);
+        } catch (err) {
+          console.error('Single country fetch failed:', err);
+        }
+      };
 
-
+      fetchSingle();
+    }
+  }, [id]);
 
   if (!currentCountry) {
     return (
-      <main className="text-center h-screen w-screen flex items-center justify-center">
-        <p className="text-lg">Loading country...</p>
+      <main className="text-center h-screen flex w-screen items-center justify-center">
+        <Loading />
       </main>
     )
   }
+
 
   return (
 
     <main className={`${isMenuOpen ? 'hidden' : ''}
     text-center h-screen w-screen overflow-y-scroll`}>
+      {
+        <div className='top-7 w-screen flex items-center justify-center fixed'>
+          <Logo
+            isIsoOnly={true}
+          />
+        </div>}
 
-      <Button
-        ratio={'z-100 mx-auto w-8 absolute left-16 sm:left-28 mt-6'}
-        title={`Go to DashBoard`}
-        buttonText={<i className='bi-house' />}
-        buttonName={`Home`}
-        action={() => {
-          navigate(`/countries/${currentCountry.id}`)
-        }}
-      />
-      <div className="items-center justify-center h-full grid sm:flex flex-wrap gap-2">
-        <div className='fixed top-0 sm:left-0
-        pt-20 sm:pt-0 w-screen sm:h-screen text-nowrap flex-wrap sm:w-20
-        dark:bg-slate-950 bg-slate-300
-        dark:text-slate-500 text-slate-700 border-b sm:border-b-0 sm:border-r
+      <div className="h-full flex-wrap gap-2 w-full sm:grid-cols-[45%_55%] sm:grid sm:items-center sm:justify-center">
+
+        {/* Nombre de país */}
+        <div className='fixed top-0 sm:left-0 border-b
+        pt-20 sm:pt-0 w-screen sm:h-full text-nowrap flex-wrap sm:w-20
+         sm:border-b-0 sm:border-r
+        dark:bg-slate-950 bg-slate-300 dark:text-slate-500 text-slate-700
         sm:border-amber-800 border-b-amber-800 dark:sm:border-amber-500 dark:border-b-amber-500
-        text-2xl flex items-center justify-center'>
-          {/* Nombre de País con guarda responsiva */}
-          <h2 className='leading-12 font-extrabold sm:rotate-[-90deg] text-3xl'>{currentCountry.name}</h2>
+        '> {/* con guarda responsiva ^ */}
+          <aside className='sm:h-full sm:overflow-y-auto sm:absolute'>
+            <h2 className='
+            leading-6 font-extrabold text-[1em] overflow-visible relative top-1/2
+            sm:text-nowrap sm:w-20 sm:relative sm:h-10 sm:py-0 sm:px-0 sm:rotate-[-90deg]
+            text-wrap py-2 px-2 text-center
+            '>
+              {currentCountry.name}</h2>
+
+            {/* Y bandera */}
+            <img
+            title={`Flag of ${currentCountry.name}`}
+            onClick={() => setShowPopUp(true)}
+            className='rounded cursor-pointer sm:ml-4 sm:mr-auto sm:w-8 object-fit max-h-5 fixed
+            sm:relative top-15 left-1/2 translate-x-[-1em] sm:left-0 sm:top-12 sm:translate-x-0 w-8'
+              src={currentCountry.flag} alt={`${currentCountry.id}`} />
+          </aside>
         </div>
 
         {/* Datos de API Rest Countries */}
-        <aside className="space-y-2 mx-auto mt-32 sm:mt-0 sm:ml-32">
+        <aside className="space-y-2 mt-40 sm:mt-0 sm:ml-32 flex-col flex items-center">
           <Table header1="Continents" footer1={currentCountry.continents.join(', ')} />
           <Table header1="Area" footer1={`${currentCountry.area.toLocaleString('de-DE')} km\u00B2`} />
           <Table header1="Population" footer1={currentCountry.population.toLocaleString('de-DE')} />
@@ -138,7 +153,7 @@ useEffect(() => {
                 ratio={`
                   text-center px-2 text-xs w-8 mb-10
                   bg-slate-800/0 dark:bg-slate-800/0 hover:bg-slate-800/0 dark:hover:bg-slate-800/0`}
-                title={`${currentCountry.name} is your born location`}
+                title={`${currentCountry.name} is your User location`}
               />}
 
             <Button //DUMMY BUTTON
@@ -149,19 +164,29 @@ useEffect(() => {
               action={() => console.log('radio: ', currentCountry.name)}
             />
           </div>
-
-
         </aside>
-        <aside className='w-[300px] mx-auto flex items-center justify-center pb-10 sm:pb-0'>
+
+        <aside className='w-[300px] pb-10 sm:pb-0 mx-auto sm:ml-0'>
           {
             currentCountry?.capitals.map((capital, i) => (
               <CountryCapitalImage
-                currentCountry={currentCountry}
-                capital={capital} key={i} />
+                capital={capital} key={i}
+                id={id} />
             ))
           }
         </aside>
       </div>
+
+      {showPopUp &&
+        <PopUpImage
+          imageTag={'Flag of ' + currentCountry.name}
+          image={currentCountry.flag}
+        />
+      }
+
+      {currentCountry.borders &&
+        <div> hola {currentCountry.name}</div>
+      }
     </main>
   )
 }

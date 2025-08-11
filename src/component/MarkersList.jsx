@@ -1,13 +1,11 @@
 import Marker from "./particle/molecule/Marker"
 import Button from "./particle/molecule/Button"
-import { UseUi } from "../hook/UseUi"
 import { UseMarkers } from "../hook/UseMarkers"
 import { useNavigate } from "react-router"
 
 const MarkersList = () => {
 
   const navigate = useNavigate()
-  const { setIsMenuOpen } = UseUi()
   const { markers, clearMarkers } = UseMarkers()
 
   return (
